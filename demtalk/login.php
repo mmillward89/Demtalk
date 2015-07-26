@@ -1,44 +1,54 @@
 <?php
-    
-    $con=mysqli_connect("localhost", "root", "password", "DemTalk");
-    $response = array();
 
-    if (mysqli_connect_errno($con)) {
-        $response["success"] = 0;
-        $response["message"] = "Connection error" . $mysqli_connect_error();
-        echo json_encode($response);
-    } else {
-        executeQuery();
-    }
-    
-    mysqli_close($con);
+try {
+    $db = new PDO('mysql:host=localhost;dbname=DemTalk;charset=utf8', 'root', 'password');
+    $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch(PDOException $e) {
+    $response["success"] = false;
+    $response["message"] = "Connection failed";
+    echo json_encode($response);
+    $stmt = $db = null;
+}   
 
-function executeQuery() {
-    
+$response = array();
+
+if(isset($_POST["username"]) && isset($_POST["password"])) 
+{
     $username = $_POST["username"];
     $password = $_POST["password"];
-
-    $statement = mysqli_prepare($con, "SELECT * FROM 'Users' WHERE Username = ? AND Password = ?");
-    mysqli_stmt_bind_param($statement, "ss", $username, $password);
     
-    if (!(mysqli_stmt_execute($statement))) {
-        $response["success"] = 0;
-        $response["message"] = "Query error";
-        echo json_encode($response);
-    } else {
-        mysqli_stmt_store_result($statement);
-        mysqli_stmt_bind_result($statement, $userID, $name, $age, $username, $password);
-
-        $user = array();
-        while(mysqli_stmt_fetch($statement)) {
-        $user["success"] = 1;
-        $user["message"] = "Details match existing user";       
-        $user["username"] = $username;
-        $user["password"] = $password;    
-    }
-        echo json_encode($user);
-    }
+        try {
+            $stmt = $db->prepare("SELECT * FROM Users WHERE username=?");
+            $stmt->execute(array($username));
+            $results = $stmt->fetch(PDO::FETCH_ASSOC);
+         } catch (PDOException $e) {
+                $response["success"] = false;
+                $response["message"] = "Query failed";
+                echo json_encode($response);
+                $stmt = $db = null;
+        }
     
-    mysqli_stmt_close($statement);
+            if($results == null) {
+                $response["success"] = false;
+                $response["message"] = "Username not found";
+            } else {
+                    $hash = $results["password"];
+                    if(password_verify($password, $hash)) {
+                        $response["success"] = true;
+                        $response["message"] = "Log user in";   
+                    } else {
+                        $response["success"] = false;
+                        $response["message"] = "Password doesn't match";  
+                    }
+            }
+
+}   
+else 
+{
+    $response["success"] = false;
+    $response["message"] = "Values not found";
 }
+
+echo json_encode($response);
+$stmt = $con = null; 
 ?>

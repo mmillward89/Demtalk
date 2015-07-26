@@ -1,35 +1,42 @@
-<?php    
+<?php
 
-    $con=mysqli_connect("localhost", "root", "password", "DemTalk");
-    
-    if (mysqli_connect_errno($con)) {
-        $response["success"] = 0;
-        $response["message"] = "Connection error" . $mysqli_connect_error();
-        echo json_encode($response);
-    } else {
-        executeQuery();
-    }
-    
-    mysqli_close($con);
+try {
+    $db = new PDO('mysql:host=localhost;dbname=DemTalk;charset=utf8', 'root', 'password');
+    $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch(PDOException $e) {
+    $response["success"] = false;
+    $response["message"] = "Connection failed";
+    echo json_encode($response);
+    $stmt = $db = null;
+}   
 
-function executeQuery() {
-    
+$response = array();
+
+if(isset($_POST["username"]) && isset($_POST["password"])) 
+{    
     $username = $_POST["username"];
     $password = $_POST["password"];
+    $hash = password_hash($password, PASSWORD_BCRYPT);
     
-    $statement = mysqli_prepare($con, "INSERT INTO 'Users' (Username, Password) VALUES (?, ?) ");
-    mysqli_stmt_bind_param($statement, "ss", $username, $password);
-    
-    if (!(mysqli_stmt_execute($statement))) {
-        $response["success"] = 0;
-        $response["message"] = "Query error";
-        echo json_encode($response);
-    } else {
-        $response["success"] = 1;
-        $response["message"] = "Details added";
-        echo json_encode($response);
+    $stmt = $db->prepare("INSERT INTO Users (username, password) VALUES (:username, :password) ");
+    try {    
+        if($stmt->execute(array(':username' => $username, ':password' => $hash))) {
+            $response["success"] = true;
+            $response["message"] = "User details added";
+        }  
+    } catch (PDOException $ex) { 
+        $response["success"] = false;
+        $response["message"] = "Query failed"; 
     }
     
-    mysqli_stmt_close($statement);
+
+} 
+else {
+    $response["success"] = false;
+    $response["message"] = "Values not found";
 }
+
+    echo json_encode($response);
+    $stmt = $db = null;
+
 ?>
