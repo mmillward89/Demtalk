@@ -16,6 +16,10 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.EntityUtils;
+import org.jivesoftware.smack.ConnectionConfiguration;
+import org.jivesoftware.smack.tcp.XMPPTCPConnection;
+import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
+import org.jivesoftware.smackx.iqregister.AccountManager;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -24,9 +28,6 @@ import java.util.ArrayList;
  * Created by Mmillward89 on 17/07/2015.
  */
 public class ServerRequests {
-
-    public static final int CONNECTION_TIME = 1000 * 15;
-    public static final String SERVER_ADDRESS ="http://10.0.2.2/demtalk/";
 
     public ServerRequests(Context context) {
 
@@ -44,47 +45,44 @@ public class ServerRequests {
     public class StoreUserDataAsyncTask extends AsyncTask<Void, Void, String> {
         private User user;
         private GetUserCallBack userCallBack;
-        private String errorMessage;
+        private String returnMessage, username, password;
 
         public StoreUserDataAsyncTask(User user, GetUserCallBack userCallBack) {
             this.user = user;
             this.userCallBack = userCallBack;
-            this.errorMessage = null;
+            returnMessage = null;
+            username = user.getUsername();
+            password = user.getPassword();
         }
 
         @Override
         protected String doInBackground(Void... params) {
-            ArrayList<NameValuePair> dataToSend = new ArrayList<>();
-            dataToSend.add(new BasicNameValuePair("username", user.username));
-            dataToSend.add(new BasicNameValuePair("password", user.password));
-
-            HttpParams httpRequestParams = new BasicHttpParams();
-            HttpConnectionParams.setConnectionTimeout(httpRequestParams, CONNECTION_TIME);
-            HttpConnectionParams.setSoTimeout(httpRequestParams, CONNECTION_TIME);
-
-            HttpClient client = new DefaultHttpClient(httpRequestParams);
-            HttpPost post = new HttpPost(SERVER_ADDRESS + "register.php");
-
+            XMPPTCPConnectionConfiguration config = XMPPTCPConnectionConfiguration.builder()
+                    .setUsernameAndPassword(username, password)
+                    .setServiceName("marks-macbook-pro.local")
+                    .setHost("10.0.2.2")
+                    .setPort(5222).setSecurityMode(ConnectionConfiguration.SecurityMode.disabled)
+                    .build();
             try {
-                post.setEntity(new UrlEncodedFormEntity(dataToSend));
-                HttpResponse httpResponse = client.execute(post);
-                HttpEntity entity = httpResponse.getEntity();
+                XMPPTCPConnection connection = new XMPPTCPConnection(config);
+                connection.connect();
 
-                String result = EntityUtils.toString(entity);
-                JSONObject jObject = new JSONObject(result);
-                errorMessage = jObject.getString("message");
-
-            } catch (Exception e) {
-                e.printStackTrace();
+                if(connection.isConnected()) {
+                    AccountManager manager = AccountManager.getInstance(connection);
+                    manager.createAccount(username, password);
+                    returnMessage = "Account created";
+                }
+            } catch(Exception e) {
+                returnMessage = "Could not register details, please ensure details are correct";
             }
 
-            return errorMessage;
+            return returnMessage;
         }
 
         @Override
-        protected void onPostExecute(String errorMessage) {
-            userCallBack.done(errorMessage, null);
-            super.onPostExecute(errorMessage);
+        protected void onPostExecute(String returnMessage) {
+            userCallBack.done(returnMessage, user);
+            super.onPostExecute(returnMessage);
         }
     }
 
@@ -92,44 +90,38 @@ public class ServerRequests {
     public class FetchUserDataAsyncTask extends AsyncTask<Void, Void, User> {
         private User user;
         private GetUserCallBack userCallBack;
-        private String returnMessage;
+        private String returnMessage, username, password;
 
         public FetchUserDataAsyncTask(User user, GetUserCallBack userCallBack) {
             this.user = user;
             this.userCallBack = userCallBack;
-            this.returnMessage = null;
+            returnMessage = null;
+            username = user.getUsername();
+            password = user.getPassword();
         }
 
         @Override
         protected User doInBackground(Void... params) {
-            ArrayList<NameValuePair> dataToSend = new ArrayList<>();
-            dataToSend.add(new BasicNameValuePair("username", user.username));
-            dataToSend.add(new BasicNameValuePair("password", user.password));
-
-            HttpParams httpRequestParams = new BasicHttpParams();
-            HttpConnectionParams.setConnectionTimeout(httpRequestParams, CONNECTION_TIME);
-            HttpConnectionParams.setSoTimeout(httpRequestParams, CONNECTION_TIME);
-
-            HttpClient client = new DefaultHttpClient(httpRequestParams);
-            HttpPost post = new HttpPost(SERVER_ADDRESS + "login.php");
 
             User returnedUser = null;
+
+            XMPPTCPConnectionConfiguration config = XMPPTCPConnectionConfiguration.builder()
+                    .setUsernameAndPassword("admin", "pridepark47")
+                    .setServiceName("marks-macbook-pro.local")
+                    .setHost("10.0.2.2")
+                    .setPort(5222).setSecurityMode(ConnectionConfiguration.SecurityMode.disabled)
+                    .build();
+
             try {
-                post.setEntity(new UrlEncodedFormEntity(dataToSend));
-                HttpResponse httpResponse = client.execute(post);
+                XMPPTCPConnection connection = new XMPPTCPConnection(config);
+                connection.connect();
+                connection.login(username, password);
 
-                HttpEntity entity = httpResponse.getEntity();
-                String result = EntityUtils.toString(entity);
-                JSONObject jObject = new JSONObject(result);
-
-                returnMessage = jObject.getString("message");
-
-                returnedUser = jObject.getBoolean("success") ?
-                        new User(user.username, user.password) :
-                        null;
-
-            } catch (Exception e) {
-                e.printStackTrace();
+                if(connection.isConnected() && connection.isAuthenticated()) {
+                    returnedUser = new User(username, password);
+                }
+            } catch(Exception e) {
+                returnMessage = "Could not login, please ensure details are correct";
             }
 
             return returnedUser;

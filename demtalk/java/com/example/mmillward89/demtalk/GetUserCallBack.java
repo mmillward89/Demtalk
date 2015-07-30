@@ -6,5 +6,4 @@ package com.example.mmillward89.demtalk;
 interface GetUserCallBack {
 
     public abstract void done(String message, User returnedUser);
-
 }

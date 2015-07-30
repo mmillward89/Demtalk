@@ -1,7 +1,9 @@
 package com.example.mmillward89.demtalk;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -11,14 +13,21 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import org.jivesoftware.smack.AbstractXMPPConnection;
+import org.jivesoftware.smack.ConnectionConfiguration;
+import org.jivesoftware.smack.XMPPConnection;
+import org.jivesoftware.smack.tcp.XMPPTCPConnection;
+import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
 
 
 public class Login extends AppCompatActivity implements View.OnClickListener {
 
-    Button login_button, startregister_button;
-    EditText username_textbox, password_textbox;
-    TextView clear_text;
-    UserLocalStore userLocalStore;
+    private Button login_button, startregister_button;
+    private EditText username_textbox, password_textbox;
+    private TextView clear_text;
+    private UserLocalStore userLocalStore;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
