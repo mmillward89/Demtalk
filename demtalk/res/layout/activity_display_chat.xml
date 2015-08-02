@@ -4,7 +4,16 @@
     android:layout_height="match_parent"
     android:layout_width="match_parent">
 
+    <EditText
+        android:id="@+id/add_message_textbox"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" />
 
+    <Button
+        android:id="@+id/add_message_button"
+        android:text="Add Message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 
 </LinearLayout>
 

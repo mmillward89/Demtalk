@@ -2,6 +2,7 @@ package com.example.mmillward89.demtalk;
 
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -11,6 +12,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+
+import org.jivesoftware.smack.ConnectionConfiguration;
+import org.jivesoftware.smack.tcp.XMPPTCPConnection;
+import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
+import org.jivesoftware.smackx.iqregister.AccountManager;
 
 
 public class Register extends AppCompatActivity implements View.OnClickListener{
@@ -57,14 +63,13 @@ public class Register extends AppCompatActivity implements View.OnClickListener{
     }
 
     private void registerUser(User user) {
-        ServerRequests serverRequests = new ServerRequests(this);
-        serverRequests.registerUserInBackground(user, new GetUserCallBack() {
+        new RegisterUserAsyncTask(user, new GetUserCallBack() {
             @Override
             public void done(String message, User returnedUser) {
                 showMessage(message);
                 startActivity(new Intent(Register.this, Login.class));
             }
-        });
+        }).execute();
     }
 
     private void showMessage(String s) {
@@ -72,5 +77,50 @@ public class Register extends AppCompatActivity implements View.OnClickListener{
         dialogBuilder.setMessage(s);
         dialogBuilder.setPositiveButton("OK", null);
         dialogBuilder.show();
+    }
+
+    private class RegisterUserAsyncTask extends AsyncTask<Void, Void, String> {
+        private User user;
+        private GetUserCallBack userCallBack;
+        private String returnMessage, username, password;
+
+        private RegisterUserAsyncTask(User user, GetUserCallBack userCallBack) {
+            this.user = user;
+            this.userCallBack = userCallBack;
+            returnMessage = null;
+            username = user.getUsername();
+            password = user.getPassword();
+        }
+
+        @Override
+        protected String doInBackground(Void... params) {
+            XMPPTCPConnectionConfiguration config = XMPPTCPConnectionConfiguration.builder()
+                    .setUsernameAndPassword(username, password)
+                    .setServiceName("marks-macbook-pro.local")
+                    .setHost("10.0.2.2")
+                    .setPort(5222).setSecurityMode(ConnectionConfiguration.SecurityMode.disabled)
+                    .build();
+            try {
+                XMPPTCPConnection connection = new XMPPTCPConnection(config);
+                connection.setPacketReplyTimeout(10000);
+                connection.connect();
+
+                if(connection.isConnected()) {
+                    AccountManager manager = AccountManager.getInstance(connection);
+                    manager.createAccount(username, password);
+                    returnMessage = "Account created";
+                }
+            } catch(Exception e) {
+                returnMessage = "Could not register details, please ensure details are correct";
+            }
+
+            return returnMessage;
+        }
+
+        @Override
+        protected void onPostExecute(String returnMessage) {
+            userCallBack.done(returnMessage, user);
+            super.onPostExecute(returnMessage);
+        }
     }
 }

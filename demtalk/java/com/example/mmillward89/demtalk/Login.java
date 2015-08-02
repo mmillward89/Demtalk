@@ -20,6 +20,13 @@ import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
+import org.jivesoftware.smackx.muc.HostedRoom;
+import org.jivesoftware.smackx.muc.MultiUserChat;
+import org.jivesoftware.smackx.muc.MultiUserChatManager;
+import org.jivesoftware.smackx.xdata.Form;
+import org.jivesoftware.smackx.xdata.packet.DataForm;
+
+import java.util.List;
 
 
 public class Login extends AppCompatActivity implements View.OnClickListener {
@@ -74,13 +81,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
     }
 
     private void authenticate(User user) {
-        //ServerRequests takes the callback object as a parameter, stores it
-        //then when it's complete, calls that object's method. We create the object
-        //below and define its method within the method parameter brackets, rather than
-        //creating it above then adding it as a parameter.
-
-        ServerRequests serverRequests = new ServerRequests(this);
-        serverRequests.loginUserInBackground(user, new GetUserCallBack() {
+        new LoginUserAsyncTask(user, new GetUserCallBack() {
             @Override
             public void done(String errorMessage, User returnedUser) {
                 if (returnedUser == null) {
@@ -89,7 +90,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
                     logUserIn(returnedUser);
                 }
             }
-        });
+        }).execute();
     }
 
     private void showMessage(String s) {
@@ -104,5 +105,67 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
         userLocalStore.setUserLoggedIn(true);
 
         startActivity(new Intent(this, CreateChatRoom.class));
+    }
+
+    private class LoginUserAsyncTask extends AsyncTask<Void, Void, User> {
+        private User user;
+        private GetUserCallBack userCallBack;
+        private String returnMessage, username, password;
+
+        private LoginUserAsyncTask(User user, GetUserCallBack userCallBack) {
+            this.user = user;
+            this.userCallBack = userCallBack;
+            returnMessage = null;
+            username = user.getUsername();
+            password = user.getPassword();
+        }
+
+        @Override
+        protected User doInBackground(Void... params) {
+
+            User returnedUser = null;
+
+            XMPPTCPConnectionConfiguration config = XMPPTCPConnectionConfiguration.builder()
+                    .setUsernameAndPassword(username, password)
+                    .setServiceName("marks-macbook-pro.local")
+                    .setHost("10.0.2.2")
+                    .setPort(5222).setSecurityMode(ConnectionConfiguration.SecurityMode.disabled)
+                    .build();
+
+            try {
+                XMPPTCPConnection connection = new XMPPTCPConnection(config);
+                connection.setPacketReplyTimeout(10000);
+                connection.connect();
+                connection.login(username, password);
+
+                MultiUserChatManager manager = MultiUserChatManager.getInstanceFor(connection);
+                List<HostedRoom> list = manager.getHostedRooms("conference.marks-macbook-pro.local");
+                int i = (list.size()) + 1;
+                MultiUserChat muc =
+                        manager.getMultiUserChat("room" + i + "@conference.marks-macbook-pro.local");
+
+                muc.create(username);
+                muc.sendConfigurationForm(new Form(DataForm.Type.submit));
+                muc.changeSubject("hello");
+                muc.sendMessage("hi");
+
+                if(connection.isConnected() && connection.isAuthenticated()) {
+                    returnedUser = new User(username, password);
+                } else {
+                    //Shouldn't get here but just in case
+                    returnMessage = "Could not login, please ensure details are correct";
+                }
+            } catch(Exception e) {
+                returnMessage = "Could not login, please ensure details are correct";
+            }
+
+            return returnedUser;
+        }
+
+        @Override
+        protected void onPostExecute(User returnedUser) {
+            userCallBack.done(returnMessage, returnedUser);
+            super.onPostExecute(returnedUser);
+        }
     }
 }
