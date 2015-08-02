@@ -20,9 +20,17 @@ import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
 import org.jivesoftware.smackx.iqregister.AccountManager;
+import org.jivesoftware.smackx.muc.DiscussionHistory;
+import org.jivesoftware.smackx.muc.HostedRoom;
+import org.jivesoftware.smackx.muc.MultiUserChat;
+import org.jivesoftware.smackx.muc.MultiUserChatManager;
+import org.jivesoftware.smackx.xdata.Form;
+import org.jivesoftware.smackx.xdata.packet.DataForm;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 /**
  * Created by Mmillward89 on 17/07/2015.
@@ -33,21 +41,80 @@ public class ServerRequests {
 
     }
 
-    public void storeUserDataInBackground(User user, GetUserCallBack callBack) {
-        new StoreUserDataAsyncTask(user, callBack).execute();
+    public void registerUserInBackground(User user, GetUserCallBack callBack) {
+        new RegisterUserAsyncTask(user, callBack).execute();
     }
 
-    public void fetchUserDataInBackground(User user, GetUserCallBack callBack) {
-        new FetchUserDataAsyncTask(user, callBack).execute();
+    public void loginUserInBackground(User user, GetUserCallBack callBack) {
+        new LoginUserAsyncTask(user, callBack).execute();
+    }
+
+    public void createChat(User user, PassMessageCallBack callBack, String[] details) {
+        new CreateChatAsyncTask(user, callBack, details).execute();
+    }
+
+    //Connect to server
+    public class CreateChatAsyncTask extends AsyncTask<Void, Void, String> {
+        private PassMessageCallBack callBack;
+        private String returnMessage, username, password;
+        private String[] details;
+        private XMPPTCPConnection connection;
+
+        public CreateChatAsyncTask(User user, PassMessageCallBack callBack, String[] details) {
+            this.callBack = callBack;
+            this.details = details;
+            returnMessage = "Chat created";
+            username = user.getUsername();
+            password = user.getPassword();
+        }
+
+        @Override
+        protected String doInBackground(Void... params) {
+            XMPPTCPConnectionConfiguration config = XMPPTCPConnectionConfiguration.builder()
+                    .setUsernameAndPassword(username, password)
+                    .setServiceName("marks-macbook-pro.local")
+                    .setHost("10.0.2.2")
+                    .setPort(5222).setSecurityMode(ConnectionConfiguration.SecurityMode.disabled)
+                    .build();
+
+            try {
+                connection = new XMPPTCPConnection(config);
+                connection.setPacketReplyTimeout(10000);
+                connection.connect();
+                connection.login(username, password);
+
+                MultiUserChatManager manager = MultiUserChatManager.getInstanceFor(connection);
+                List<HostedRoom> list = manager.getHostedRooms("conference.marks-macbook-pro.local");
+                int i = (list.size()) + 1;
+                MultiUserChat muc =
+                        manager.getMultiUserChat("room" + i + "@conference.marks-macbook-pro.local");
+
+                muc.create(username);
+                muc.sendConfigurationForm(new Form(DataForm.Type.submit));
+                muc.changeSubject(details[0]);
+                muc.sendMessage(details[1]);
+
+            } catch (Exception e) {
+                returnMessage = "Could not create chat, please try again";
+            }
+
+            return returnMessage;
+        }
+
+        @Override
+        protected void onPostExecute(String returnMessage) {
+            callBack.done(returnMessage);
+            super.onPostExecute(returnMessage);
+        }
     }
 
     //Register
-    public class StoreUserDataAsyncTask extends AsyncTask<Void, Void, String> {
+    public class RegisterUserAsyncTask extends AsyncTask<Void, Void, String> {
         private User user;
         private GetUserCallBack userCallBack;
         private String returnMessage, username, password;
 
-        public StoreUserDataAsyncTask(User user, GetUserCallBack userCallBack) {
+        public RegisterUserAsyncTask(User user, GetUserCallBack userCallBack) {
             this.user = user;
             this.userCallBack = userCallBack;
             returnMessage = null;
@@ -65,6 +132,7 @@ public class ServerRequests {
                     .build();
             try {
                 XMPPTCPConnection connection = new XMPPTCPConnection(config);
+                connection.setPacketReplyTimeout(10000);
                 connection.connect();
 
                 if(connection.isConnected()) {
@@ -87,12 +155,12 @@ public class ServerRequests {
     }
 
     //Login
-    public class FetchUserDataAsyncTask extends AsyncTask<Void, Void, User> {
+    public class LoginUserAsyncTask extends AsyncTask<Void, Void, User> {
         private User user;
         private GetUserCallBack userCallBack;
         private String returnMessage, username, password;
 
-        public FetchUserDataAsyncTask(User user, GetUserCallBack userCallBack) {
+        public LoginUserAsyncTask(User user, GetUserCallBack userCallBack) {
             this.user = user;
             this.userCallBack = userCallBack;
             returnMessage = null;
@@ -106,7 +174,7 @@ public class ServerRequests {
             User returnedUser = null;
 
             XMPPTCPConnectionConfiguration config = XMPPTCPConnectionConfiguration.builder()
-                    .setUsernameAndPassword("admin", "pridepark47")
+                    .setUsernameAndPassword(username, password)
                     .setServiceName("marks-macbook-pro.local")
                     .setHost("10.0.2.2")
                     .setPort(5222).setSecurityMode(ConnectionConfiguration.SecurityMode.disabled)
@@ -114,11 +182,15 @@ public class ServerRequests {
 
             try {
                 XMPPTCPConnection connection = new XMPPTCPConnection(config);
+                connection.setPacketReplyTimeout(10000);
                 connection.connect();
                 connection.login(username, password);
 
                 if(connection.isConnected() && connection.isAuthenticated()) {
                     returnedUser = new User(username, password);
+                } else {
+                    //Shouldn't get here but just in case
+                    returnMessage = "Could not login, please ensure details are correct";
                 }
             } catch(Exception e) {
                 returnMessage = "Could not login, please ensure details are correct";

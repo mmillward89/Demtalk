@@ -80,10 +80,10 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
         //creating it above then adding it as a parameter.
 
         ServerRequests serverRequests = new ServerRequests(this);
-        serverRequests.fetchUserDataInBackground(user, new GetUserCallBack() {
+        serverRequests.loginUserInBackground(user, new GetUserCallBack() {
             @Override
             public void done(String errorMessage, User returnedUser) {
-                if(returnedUser == null) {
+                if (returnedUser == null) {
                     showMessage(errorMessage);
                 } else {
                     logUserIn(returnedUser);
@@ -103,6 +103,6 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
         userLocalStore.storeUserData(returnedUser);
         userLocalStore.setUserLoggedIn(true);
 
-        startActivity(new Intent(this, MainActivity.class));
+        startActivity(new Intent(this, CreateChatRoom.class));
     }
 }

@@ -58,7 +58,7 @@ public class Register extends AppCompatActivity implements View.OnClickListener{
 
     private void registerUser(User user) {
         ServerRequests serverRequests = new ServerRequests(this);
-        serverRequests.storeUserDataInBackground(user, new GetUserCallBack() {
+        serverRequests.registerUserInBackground(user, new GetUserCallBack() {
             @Override
             public void done(String message, User returnedUser) {
                 showMessage(message);
