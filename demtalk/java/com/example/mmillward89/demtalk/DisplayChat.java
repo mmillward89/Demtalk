@@ -2,16 +2,18 @@ package com.example.mmillward89.demtalk;
 
 import android.app.AlertDialog;
 import android.os.AsyncTask;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import com.example.mmillward89.demtalk.GetChatCallBack;
+import com.example.mmillward89.demtalk.R;
+import com.example.mmillward89.demtalk.User;
+import com.example.mmillward89.demtalk.UserLocalStore;
 
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.MessageListener;
@@ -19,15 +21,8 @@ import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
 import org.jivesoftware.smackx.muc.DiscussionHistory;
-import org.jivesoftware.smackx.muc.HostedRoom;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.jivesoftware.smackx.muc.MultiUserChatManager;
-import org.jivesoftware.smackx.xdata.Form;
-import org.jivesoftware.smackx.xdata.packet.DataForm;
-
-import java.util.List;
-import java.util.Random;
-
 
 public class DisplayChat extends AppCompatActivity implements MessageListener, View.OnClickListener{
     private EditText add_message_textbox;
@@ -124,7 +119,7 @@ public class DisplayChat extends AppCompatActivity implements MessageListener, V
                     .setPort(5222).setSecurityMode(ConnectionConfiguration.SecurityMode.disabled)
                     .build();
 
-            MultiUserChat muc = null;
+            MultiUserChat multiUserChat = null;
             try {
                 connection = new XMPPTCPConnection(config);
                 connection.setPacketReplyTimeout(10000);
@@ -132,17 +127,17 @@ public class DisplayChat extends AppCompatActivity implements MessageListener, V
                 connection.login(username, password);
 
                 MultiUserChatManager manager = MultiUserChatManager.getInstanceFor(connection);
-                muc = manager.getMultiUserChat(JID);
+                multiUserChat = manager.getMultiUserChat(JID);
                 DiscussionHistory history = new DiscussionHistory();
                 //need to get all history here
                 history.setMaxStanzas(5);
-                muc.join(username, "", history, connection.getPacketReplyTimeout());
+                multiUserChat.join(username, "", history, connection.getPacketReplyTimeout());
 
             } catch (Exception e) {
                 returnMessage = "Could not find chat, please try again";
             }
 
-            return muc;
+            return multiUserChat;
         }
 
         @Override

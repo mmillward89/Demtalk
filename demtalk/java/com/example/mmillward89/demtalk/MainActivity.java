@@ -29,7 +29,7 @@ import java.util.Map;
 
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
-    private Button logout_button, chat_button;
+    private Button logout_button, chat_button, display_button;
     private UserLocalStore userLocalStore;
     private User user;
     private HashMap<String, String> map;
@@ -41,8 +41,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         logout_button = (Button) findViewById(R.id.logout_button);
         chat_button = (Button) findViewById(R.id.chat_button);
+        display_button = (Button) findViewById(R.id.display_button);
+
         logout_button.setOnClickListener(this);
         chat_button.setOnClickListener(this);
+        display_button.setOnClickListener(this);
 
         userLocalStore = new UserLocalStore(this);
         user = userLocalStore.getLoggedInUser();
@@ -105,11 +108,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 startActivity(new Intent(this, CreateChatRoom.class));
                 break;
 
+            case R.id.display_button:
+                startActivity(new Intent(this, test.class));
+                break;
+
             default:
                 Button b = (Button) v;
                 String subject = b.getText().toString();
                 String jid = map.get(subject);
-                Intent intent = new Intent(this, DisplayChat.class);
+                Intent intent = new Intent(this, Login.class);
                 intent.putExtra("JID", jid);
                 startActivity(intent);
                 break;

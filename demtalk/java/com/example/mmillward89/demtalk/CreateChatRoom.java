@@ -116,7 +116,6 @@ public class CreateChatRoom extends AppCompatActivity implements View.OnClickLis
 
                 muc.create(username);
                 muc.sendConfigurationForm(new Form(DataForm.Type.submit));
-                //add subject validation here - could use map from main activity?
                 muc.changeSubject(subject);
                 muc.sendMessage(message);
 

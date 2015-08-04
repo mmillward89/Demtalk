@@ -7,4 +7,6 @@
     <string name="title_activity_register">Register</string>
     <string name="title_activity_create_chat_room">CreateChatRoom</string>
     <string name="title_activity_display_chat">DisplayChat</string>
+    <string name="title_activity_test">test</string>
+    <string name="title_activity_test2">test2</string>
 </resources>

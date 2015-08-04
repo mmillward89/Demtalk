@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.UserManager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -26,6 +27,7 @@ import org.jivesoftware.smackx.muc.MultiUserChatManager;
 import org.jivesoftware.smackx.xdata.Form;
 import org.jivesoftware.smackx.xdata.packet.DataForm;
 
+import java.util.Collection;
 import java.util.List;
 
 
@@ -66,7 +68,6 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
                     User user = new User(username, password);
                     authenticate(user);
                 }
-
                 break;
 
             case R.id.startregister_button:
@@ -104,7 +105,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
         userLocalStore.storeUserData(returnedUser);
         userLocalStore.setUserLoggedIn(true);
 
-        startActivity(new Intent(this, CreateChatRoom.class));
+        startActivity(new Intent(this, MainActivity.class));
     }
 
     private class LoginUserAsyncTask extends AsyncTask<Void, Void, User> {
@@ -139,15 +140,11 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
                 connection.login(username, password);
 
                 MultiUserChatManager manager = MultiUserChatManager.getInstanceFor(connection);
-                List<HostedRoom> list = manager.getHostedRooms("conference.marks-macbook-pro.local");
-                int i = (list.size()) + 1;
-                MultiUserChat muc =
-                        manager.getMultiUserChat("room" + i + "@conference.marks-macbook-pro.local");
-
-                muc.create(username);
-                muc.sendConfigurationForm(new Form(DataForm.Type.submit));
-                muc.changeSubject("hello");
-                muc.sendMessage("hi");
+                MultiUserChat multiUserChat = manager.getMultiUserChat("room3@conference." +
+                        "marks-macbook-pro.local");
+                multiUserChat.join("it worked");
+                multiUserChat.sendMessage("first message");
+                multiUserChat.sendMessage("second message");
 
                 if(connection.isConnected() && connection.isAuthenticated()) {
                     returnedUser = new User(username, password);
