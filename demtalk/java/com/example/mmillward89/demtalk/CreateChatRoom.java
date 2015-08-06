@@ -119,7 +119,11 @@ public class CreateChatRoom extends AppCompatActivity implements View.OnClickLis
                 muc.changeSubject(subject);
                 muc.sendMessage(message);
 
+                connection.disconnect();
+
             } catch (Exception e) {
+                //Try again as it's possible but very unlikely creating chat rooms will overlap
+                //and connection has already been established to log in
                 returnMessage = "Could not create chat, please try again";
             }
 

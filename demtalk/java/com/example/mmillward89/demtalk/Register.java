@@ -105,11 +105,12 @@ public class Register extends AppCompatActivity implements View.OnClickListener{
                 connection.setPacketReplyTimeout(10000);
                 connection.connect();
 
-                if(connection.isConnected()) {
-                    AccountManager manager = AccountManager.getInstance(connection);
-                    manager.createAccount(username, password);
-                    returnMessage = "Account created";
-                }
+                AccountManager manager = AccountManager.getInstance(connection);
+                manager.createAccount(username, password);
+                returnMessage = "Account created";
+
+                connection.disconnect();
+
             } catch(Exception e) {
                 returnMessage = "Could not register details, please ensure details are correct";
             }

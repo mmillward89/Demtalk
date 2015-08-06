@@ -139,19 +139,15 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
                 connection.connect();
                 connection.login(username, password);
 
-                MultiUserChatManager manager = MultiUserChatManager.getInstanceFor(connection);
-                MultiUserChat multiUserChat = manager.getMultiUserChat("room3@conference." +
-                        "marks-macbook-pro.local");
-                multiUserChat.join("it worked");
-                multiUserChat.sendMessage("first message");
-                multiUserChat.sendMessage("second message");
-
                 if(connection.isConnected() && connection.isAuthenticated()) {
                     returnedUser = new User(username, password);
                 } else {
                     //Shouldn't get here but just in case
                     returnMessage = "Could not login, please ensure details are correct";
                 }
+
+                connection.disconnect();
+
             } catch(Exception e) {
                 returnMessage = "Could not login, please ensure details are correct";
             }
