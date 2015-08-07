@@ -105,7 +105,9 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
         userLocalStore.storeUserData(returnedUser);
         userLocalStore.setUserLoggedIn(true);
 
-        startActivity(new Intent(this, MainActivity.class));
+        Intent intent = new Intent(this, test.class);
+        intent.putExtra("JID", "room1@conference.marks-macbook-pro.local");
+        startActivity(intent);
     }
 
     private class LoginUserAsyncTask extends AsyncTask<Void, Void, User> {
@@ -139,12 +141,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
                 connection.connect();
                 connection.login(username, password);
 
-                if(connection.isConnected() && connection.isAuthenticated()) {
-                    returnedUser = new User(username, password);
-                } else {
-                    //Shouldn't get here but just in case
-                    returnMessage = "Could not login, please ensure details are correct";
-                }
+                returnedUser = new User(username, password);
 
                 connection.disconnect();
 

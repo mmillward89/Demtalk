@@ -81,9 +81,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if(returnMessage.equals("Could not connect") ||
                         returnMessage.equals("No topics created yet")) {
                     showMessage(returnMessage);
-                } else {
-                    addMap(map);
-                    addButtons();
                 }
             }
         }, this).execute();
@@ -93,7 +90,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         this.map = map;
     }
 
-    private void addButtons() {
+    private void addButtons(HashMap<String, String> map) {
         LinearLayout l = (LinearLayout) findViewById(R.id.main_activity_layout);
         for(String subject: map.keySet()) {
             Button b = new Button(this);
@@ -207,9 +204,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         @Override
         protected void onPostExecute(HashMap<String, String> map) {
+            addMap(map);
+            addButtons(map);
             progressDialog.dismiss();
             callBack.done(returnMessage, map);
-            super.onPostExecute(map);
         }
     }
 }

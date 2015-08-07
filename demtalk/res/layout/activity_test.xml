@@ -1,13 +1,20 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
-    android:layout_height="match_parent"
-    android:layout_width="match_parent">
+    android:layout_height="fill_parent"
+    android:layout_width="fill_parent"
+    android:id="@+id/test_layout">
 
-    <Button
-        android:id="@+id/backtomain_button"
-        android:text="Go To Main Page"
+    <EditText
+        android:id="@+id/add_reply_textbox"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content" />
 
+    <Button
+        android:id="@+id/add_reply_button"
+        android:text="Add Message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
 </LinearLayout>
+

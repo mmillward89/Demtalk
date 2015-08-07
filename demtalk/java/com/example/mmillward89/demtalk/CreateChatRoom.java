@@ -132,8 +132,8 @@ public class CreateChatRoom extends AppCompatActivity implements View.OnClickLis
 
         @Override
         protected void onPostExecute(String returnMessage) {
-            callBack.done(returnMessage);
             super.onPostExecute(returnMessage);
+            callBack.done(returnMessage);
         }
     }
 }
