@@ -1,5 +1,6 @@
 package com.example.mmillward89.demtalk;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -34,6 +35,7 @@ public class test extends AppCompatActivity implements View.OnClickListener, Mes
     private User user;
     private MultiUserChat multiUserChat;
     private LinearLayout layout;
+    private String messageBody;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -89,12 +91,24 @@ public class test extends AppCompatActivity implements View.OnClickListener, Mes
 
     @Override
     public void processMessage(Message message) {
+        messageBody = message.getBody();
 
-        TextView textView = new TextView(getApplicationContext());
-        textView.setLayoutParams(new LinearLayout.LayoutParams
-                (LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-        textView.setText(message.getBody());
-        layout.addView(textView);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+
+                try {
+                    TextView textView = new TextView(test.this);
+                    textView.setLayoutParams(new LinearLayout.LayoutParams
+                            (LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+                    textView.setText(messageBody);
+                    layout.addView(textView);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+            }
+        });
 
 
     }

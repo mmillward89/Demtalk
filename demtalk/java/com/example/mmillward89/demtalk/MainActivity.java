@@ -31,11 +31,12 @@ import java.util.Set;
 
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
-    private Button logout_button, chat_button, display_button;
+    private Button logout_button, chat_button;
     private UserLocalStore userLocalStore;
     private User user;
-    private HashMap<String, String> map;
     private ProgressDialog progressDialog;
+    private List<HostedRoom> list;
+    private HashMap<String, String> map;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,11 +44,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
 
         chat_button = (Button) findViewById(R.id.chat_button);
-        display_button = (Button) findViewById(R.id.display_button);
         logout_button = (Button) findViewById(R.id.logout_button);
 
         chat_button.setOnClickListener(this);
-        display_button.setOnClickListener(this);
         logout_button.setOnClickListener(this);
 
         progressDialog = new ProgressDialog(this);
@@ -63,6 +62,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onStart() {
         super.onStart();
+
         if(authenticate()){
             getChatRoomButtons();
         } else {
@@ -70,18 +70,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        this.map = null;
+        //remove map as needs to refresh with newly created chat rooms
+        //don't want duplicate key/value pairs
+    }
+
     private boolean authenticate() {
         return userLocalStore.getUserLoggedIn();
     }
 
     private void getChatRoomButtons() {
-        new GetChatRoomData(user, new GetSubjectsCallBack() {
+        new GetChatRoomData(user, new PassMessageCallBack() {
             @Override
-            public void done(String returnMessage, HashMap<String, String> map) {
-                if(returnMessage.equals("Could not connect") ||
-                        returnMessage.equals("No topics created yet")) {
+            public void done(String returnMessage) {
+
+                if(returnMessage.equals("Could not connect")) {
                     showMessage(returnMessage);
                 }
+
             }
         }, this).execute();
     }
@@ -92,14 +101,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void addButtons(HashMap<String, String> map) {
         LinearLayout l = (LinearLayout) findViewById(R.id.main_activity_layout);
-        for(String subject: map.keySet()) {
-            Button b = new Button(this);
-            b.setText(subject);
-            b.setOnClickListener(this);
-            l.addView(b);
-        }
-    }
 
+        if(map.keySet().size() == 0) {
+            TextView textView = new TextView(this);
+            textView.setText("No chat rooms created yet.");
+            l.addView(textView);
+        }
+        else {
+            for (String subject : map.keySet()) {
+                Button b = new Button(this);
+                b.setText(subject);
+                b.setOnClickListener(this);
+                l.addView(b);
+            }
+        }
+
+    }
 
     @Override
     public void onClick(View v) {
@@ -114,15 +131,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 startActivity(new Intent(this, CreateChatRoom.class));
                 break;
 
-            case R.id.display_button:
-                startActivity(new Intent(this, test.class));
-                break;
-
             default:
                 Button b = (Button) v;
                 String subject = b.getText().toString();
                 String jid = map.get(subject);
-                Intent intent = new Intent(this, Login.class);
+                Intent intent = new Intent(this, test.class);
                 intent.putExtra("JID", jid);
                 startActivity(intent);
                 break;
@@ -130,10 +143,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void showMessage(String s) {
+
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
         dialogBuilder.setMessage(s);
         dialogBuilder.setPositiveButton("OK", null);
         dialogBuilder.show();
+
     }
 
     //Gets all room subject and JID data and adds them to hash map,
@@ -143,9 +158,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         private Context context;
         private String username, password, returnMessage;
         private XMPPTCPConnection connection;
-        private GetSubjectsCallBack callBack;
+        private PassMessageCallBack callBack;
 
-        private GetChatRoomData(User user, GetSubjectsCallBack callBack, Context context) {
+        private GetChatRoomData(User user, PassMessageCallBack callBack, Context context) {
             this.context = context;
             this.callBack = callBack;
             username = user.getUsername(); password = user.getPassword();
@@ -167,7 +182,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     .setPort(5222).setSecurityMode(ConnectionConfiguration.SecurityMode.disabled)
                     .build();
 
-            HashMap<String, String> returnmap = new HashMap<String, String>();
+            HashMap<String, String> map = new HashMap<String, String>();
 
             try {
                 connection = new XMPPTCPConnection(config);
@@ -176,21 +191,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 connection.login(username, password);
 
                 MultiUserChatManager manager = MultiUserChatManager.getInstanceFor(connection);
-                List<HostedRoom> list = manager.getHostedRooms("conference.marks-macbook-pro.local");
+                list = manager.getHostedRooms("conference.marks-macbook-pro.local");
 
-                if(list.size() != 0) {
-                    for (HostedRoom room : list) {
-                        String jid = room.getJid();
-                        MultiUserChat tempMuc =
-                                manager.getMultiUserChat(jid);
-                        if (!(tempMuc.isJoined())) {
-                            tempMuc.join(username);
-                        }
-                        String subject = tempMuc.getSubject();
-                        returnmap.put(subject, jid);
+
+                for (HostedRoom room : list) {
+                    String jid = room.getJid();
+                    MultiUserChat tempMuc =
+                            manager.getMultiUserChat(jid);
+
+                    if (!(tempMuc.isJoined())) {
+                        tempMuc.join(user.getUsername());
+                        Thread.sleep(3000);
                     }
-                } else {
-                    returnMessage = "No topics created yet";
+
+                    String subject = tempMuc.getSubject();
+                    map.put(subject, jid);
+
                 }
 
                 connection.disconnect();
@@ -199,15 +215,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 returnMessage = "Could not connect";
             }
 
-                return returnmap;
+            return map;
         }
 
         @Override
         protected void onPostExecute(HashMap<String, String> map) {
+            super.onPostExecute(map);
             addMap(map);
             addButtons(map);
             progressDialog.dismiss();
-            callBack.done(returnMessage, map);
+            callBack.done(returnMessage);
         }
     }
 }

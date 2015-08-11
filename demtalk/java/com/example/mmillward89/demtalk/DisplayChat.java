@@ -1,6 +1,7 @@
 package com.example.mmillward89.demtalk;
 
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -31,6 +32,7 @@ public class DisplayChat extends AppCompatActivity implements MessageListener, V
     private UserLocalStore userLocalStore;
     private User user;
     private MultiUserChat chatRoom;
+    private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +44,11 @@ public class DisplayChat extends AppCompatActivity implements MessageListener, V
         userLocalStore = new UserLocalStore(this);
         user = userLocalStore.getLoggedInUser();
 
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setCancelable(false);
+        progressDialog.setTitle("Processing");
+        progressDialog.setMessage("Please wait");
+
         if (savedInstanceState == null) {
             Bundle extras = getIntent().getExtras();
             if (extras == null) {
@@ -50,9 +57,14 @@ public class DisplayChat extends AppCompatActivity implements MessageListener, V
                 JID = extras.getString("JID");
             }
         } else {
-            JID= (String) savedInstanceState.getSerializable("JID");
+            JID = (String) savedInstanceState.getSerializable("JID");
         }
 
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
         joinChat();
     }
 
@@ -67,6 +79,7 @@ public class DisplayChat extends AppCompatActivity implements MessageListener, V
                 }
             }
         }, JID).execute();
+
         chatRoom.addMessageListener(this);
     }
 
@@ -111,6 +124,12 @@ public class DisplayChat extends AppCompatActivity implements MessageListener, V
         }
 
         @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressDialog.show();
+        }
+
+        @Override
         protected MultiUserChat doInBackground(Void... params) {
             XMPPTCPConnectionConfiguration config = XMPPTCPConnectionConfiguration.builder()
                     .setUsernameAndPassword(username, password)
@@ -142,8 +161,9 @@ public class DisplayChat extends AppCompatActivity implements MessageListener, V
 
         @Override
         protected void onPostExecute(MultiUserChat multiUserChat) {
-            callBack.done(returnMessage, multiUserChat);
             super.onPostExecute(multiUserChat);
+            progressDialog.dismiss();
+            callBack.done(returnMessage, multiUserChat);
         }
     }
 }

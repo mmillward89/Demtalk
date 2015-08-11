@@ -105,8 +105,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
         userLocalStore.storeUserData(returnedUser);
         userLocalStore.setUserLoggedIn(true);
 
-        Intent intent = new Intent(this, test.class);
-        intent.putExtra("JID", "room1@conference.marks-macbook-pro.local");
+        Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
     }
 
