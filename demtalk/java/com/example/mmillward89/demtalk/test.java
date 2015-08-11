@@ -2,6 +2,7 @@ package com.example.mmillward89.demtalk;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -29,7 +30,7 @@ import org.jivesoftware.smackx.muc.MultiUserChatManager;
 
 public class test extends AppCompatActivity implements View.OnClickListener, MessageListener{
     private EditText add_reply_textbox;
-    private Button add_reply_button;
+    private Button add_reply_button, to_main_button;
     private String[] Info;
     private UserLocalStore userLocalStore;
     private User user;
@@ -43,12 +44,27 @@ public class test extends AppCompatActivity implements View.OnClickListener, Mes
 
         layout = (LinearLayout) findViewById(R.id.test_layout);
         add_reply_textbox = (EditText) findViewById(R.id.add_reply_textbox);
+
         add_reply_button = (Button) findViewById(R.id.add_reply_button);
         add_reply_button.setOnClickListener(this);
+        to_main_button = (Button) findViewById(R.id.to_main_button);
+        to_main_button.setOnClickListener(this);
+
         userLocalStore = new UserLocalStore(this);
         user = userLocalStore.getLoggedInUser();
-        Info = new String[2];
 
+        Info = new String[2];
+        retrieveIntent(savedInstanceState);
+
+        if(Info[0] != null) {
+            joinChat();
+        } else{
+            showMessage("Room information not passed");
+        }
+
+    }
+
+    private void retrieveIntent(Bundle savedInstanceState) {
         if (savedInstanceState == null) {
             Bundle extras = getIntent().getExtras();
             if (extras == null) {
@@ -59,13 +75,6 @@ public class test extends AppCompatActivity implements View.OnClickListener, Mes
         } else {
             Info[0] = (String) savedInstanceState.getSerializable("JID");
         }
-
-        if(Info[0] != null) {
-            joinChat();
-        } else{
-            showMessage("Room information not passed");
-        }
-
     }
 
     private void joinChat() {
@@ -81,12 +90,23 @@ public class test extends AppCompatActivity implements View.OnClickListener, Mes
 
     @Override
     public void onClick(View v) {
-        Info[1] = add_reply_textbox.getText().toString();
-        try {
-            multiUserChat.sendMessage(Info[1]);
-        } catch (Exception e) {
-            showMessage("Could not send message");
+        switch (v.getId()) {
+
+            case R.id.add_reply_button:
+                Info[1] = add_reply_textbox.getText().toString();
+                try {
+                    multiUserChat.sendMessage(Info[1]);
+                } catch (Exception e) {
+                    showMessage("Could not send message");
+                }
+                break;
+
+            case R.id.to_main_button:
+                Intent intent = new Intent(this, MainActivity.class);
+                startActivity(intent);
+                break;
         }
+
     }
 
     @Override
@@ -109,7 +129,6 @@ public class test extends AppCompatActivity implements View.OnClickListener, Mes
 
             }
         });
-
 
     }
 

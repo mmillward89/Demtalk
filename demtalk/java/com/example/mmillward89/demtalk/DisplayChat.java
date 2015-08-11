@@ -2,6 +2,7 @@ package com.example.mmillward89.demtalk;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -9,6 +10,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.example.mmillward89.demtalk.GetChatCallBack;
@@ -27,78 +29,124 @@ import org.jivesoftware.smackx.muc.MultiUserChatManager;
 
 public class DisplayChat extends AppCompatActivity implements MessageListener, View.OnClickListener{
     private EditText add_message_textbox;
-    private Button add_message_button;
-    private String JID;
+    private Button add_message_button, back_to_main_button;
+    private String[] Info;
     private UserLocalStore userLocalStore;
     private User user;
     private MultiUserChat chatRoom;
-    private ProgressDialog progressDialog;
+    private LinearLayout scrolllayout;
+    private String messageBody;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display_chat);
 
+        scrolllayout = (LinearLayout) findViewById(R.id.scroll_layout);
         add_message_textbox = (EditText) findViewById(R.id.add_message_textbox);
+
         add_message_button = (Button) findViewById(R.id.add_message_button);
+        back_to_main_button = (Button) findViewById(R.id.back_to_main_button);
+        add_message_button.setOnClickListener(this);
+        back_to_main_button.setOnClickListener(this);
+
         userLocalStore = new UserLocalStore(this);
         user = userLocalStore.getLoggedInUser();
 
-        progressDialog = new ProgressDialog(this);
-        progressDialog.setCancelable(false);
-        progressDialog.setTitle("Processing");
-        progressDialog.setMessage("Please wait");
+        Info = new String[2];
+        retrieveIntent(savedInstanceState);
 
-        if (savedInstanceState == null) {
-            Bundle extras = getIntent().getExtras();
-            if (extras == null) {
-                JID = null;
-            } else {
-                JID = extras.getString("JID");
-            }
-        } else {
-            JID = (String) savedInstanceState.getSerializable("JID");
+        if(Info[0] != null) {
+            joinChat();
+        } else{
+            showMessage("Room information not passed");
         }
 
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        joinChat();
+    private void retrieveIntent(Bundle savedInstanceState) {
+        if (savedInstanceState == null) {
+            Bundle extras = getIntent().getExtras();
+            if (extras == null) {
+                Info[0] = null;
+            } else {
+                Info[0] = extras.getString("JID");
+            }
+        } else {
+            Info[0] = (String) savedInstanceState.getSerializable("JID");
+        }
     }
 
     private void joinChat() {
-        new DisplayChatAsyncTask(user, new GetChatCallBack() {
+        new DisplayChatAsyncTask(user, new PassMessageCallBack() {
             @Override
-            public void done(String message, MultiUserChat multiUserChat) {
-                if(!(message.equals("Could not find chat, please try again"))) {
-                    chatRoom = multiUserChat;
-                } else {
+            public void done(String message) {
+                if(message.equals("Could not find chat, please try again")) {
                     showMessage(message);
                 }
             }
-        }, JID).execute();
-
-        chatRoom.addMessageListener(this);
-    }
-
-    @Override
-    public void processMessage(Message message) {
-        LinearLayout l = new LinearLayout(this);
-        TextView text = new TextView(getApplicationContext());
-        text.setText(message.getBody());
-        l.addView(text);
+        },Info).execute();
     }
 
     @Override
     public void onClick(View v) {
-        String message = add_message_textbox.getText().toString();
-        try {
-            chatRoom.sendMessage(message);
-        } catch (Exception e) {
-            showMessage("Message not sent");
+        switch (v.getId()) {
+
+            case R.id.add_message_button:
+                Info[1] = user.getUsername() + ": \"" +
+                        add_message_textbox.getText().toString() + "\"";
+                try {
+                    chatRoom.sendMessage(Info[1]);
+                } catch (Exception e) {
+                    showMessage("Could not send message");
+                }
+                break;
+
+            case R.id.back_to_main_button:
+                Intent intent = new Intent(this, MainActivity.class);
+                startActivity(intent);
+                break;
         }
+    }
+
+    @Override
+    public void processMessage(Message message) {
+
+        messageBody = message.getBody();
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+
+                try {
+                    TextView textView = new TextView(DisplayChat.this);
+                    textView.setLayoutParams(new LinearLayout.LayoutParams
+                            (LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+                    textView.setText(messageBody);
+                    scrolllayout.addView(textView);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+            }
+        });
+    }
+
+    private void addChat(MultiUserChat chatRoom) {
+        this.chatRoom = chatRoom;
+        this.chatRoom.addMessageListener(this);
+    }
+
+    private void addHistory() {
+        try {
+            for (int i = 0; i < 5; i++) {
+                Message message = chatRoom.nextMessage();
+                processMessage(message);
+            }
+        } catch (Exception e) {
+            showMessage("Could not display chat history");
+        }
+
     }
 
     private void showMessage(String s) {
@@ -111,22 +159,17 @@ public class DisplayChat extends AppCompatActivity implements MessageListener, V
     //Finds the appropriate chat based on subject, joins it
     //and returns a reference to the object
     private class DisplayChatAsyncTask extends AsyncTask<Void, Void, MultiUserChat> {
-        private GetChatCallBack callBack;
-        private String returnMessage, username, password, JID;
+        private PassMessageCallBack callBack;
+        private String returnMessage, username, password;
+        private String[] info;
         private XMPPTCPConnection connection;
 
-        private DisplayChatAsyncTask(User user, GetChatCallBack callBack, String JID) {
+        private DisplayChatAsyncTask(User user, PassMessageCallBack callBack, String[] info) {
             this.callBack = callBack;
-            this.JID = JID;
+            this.info = info;
             returnMessage = "Chat found";
             username = user.getUsername();
             password = user.getPassword();
-        }
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            progressDialog.show();
         }
 
         @Override
@@ -146,7 +189,8 @@ public class DisplayChat extends AppCompatActivity implements MessageListener, V
                 connection.login(username, password);
 
                 MultiUserChatManager manager = MultiUserChatManager.getInstanceFor(connection);
-                multiUserChat = manager.getMultiUserChat(JID);
+                multiUserChat = manager.getMultiUserChat(info[0]);
+
                 DiscussionHistory history = new DiscussionHistory();
                 //need to get all history here
                 history.setMaxStanzas(5);
@@ -162,8 +206,9 @@ public class DisplayChat extends AppCompatActivity implements MessageListener, V
         @Override
         protected void onPostExecute(MultiUserChat multiUserChat) {
             super.onPostExecute(multiUserChat);
-            progressDialog.dismiss();
-            callBack.done(returnMessage, multiUserChat);
+            addChat(multiUserChat);
+            addHistory();
+            callBack.done(returnMessage);
         }
     }
 }

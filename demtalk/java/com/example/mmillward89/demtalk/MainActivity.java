@@ -135,7 +135,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Button b = (Button) v;
                 String subject = b.getText().toString();
                 String jid = map.get(subject);
-                Intent intent = new Intent(this, test.class);
+                Intent intent = new Intent(this, DisplayChat.class);
                 intent.putExtra("JID", jid);
                 startActivity(intent);
                 break;

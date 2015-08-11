@@ -1,8 +1,30 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
-    android:layout_height="match_parent"
-    android:layout_width="match_parent">
+    android:layout_height="fill_parent"
+    android:layout_width="fill_parent"
+    android:id="@+id/display_chat_layout">
+
+    <ScrollView
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:id="@+id/display_chat_scrollbox">
+    
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/scroll_layout">
+
+        </LinearLayout>
+        
+    </ScrollView>
+    
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
 
     <EditText
         android:id="@+id/add_message_textbox"
@@ -14,6 +36,14 @@
         android:text="Add Message"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
+
+    <Button
+        android:id="@+id/back_to_main_button"
+        android:text="Home Page"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    </LinearLayout>
 
 </LinearLayout>
 
