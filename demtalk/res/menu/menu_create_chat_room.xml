@@ -2,6 +2,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.example.mmillward89.demtalk.CreateChatRoom">
+
+    <item android:id="@+id/main_menu_icon"
+        android:icon="@drawable/ic_database"
+        android:title="@string/main_menu_icon"
+        app:showAsAction="ifRoom"/>
+
     <item android:id="@+id/action_settings" android:title="@string/action_settings"
         android:orderInCategory="100" app:showAsAction="never" />
 </menu>

@@ -4,35 +4,58 @@
     android:layout_height="match_parent"
     android:layout_width="match_parent">
 
-    <TextView
+    <TextView style="@style/EditTextFont"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Username"/>
+        android:text="@string/register_username"
+        android:textStyle="bold"
+        android:textColor="@color/White"
+        android:layout_marginTop="10dp"/>
+
     <EditText
         android:id="@+id/username_textbox_register"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="10dp"/>
-    <TextView
+
+    <TextView style="@style/EditTextFont"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Password"/>
+        android:text="@string/register_password"
+        android:textStyle="bold"
+        android:textColor="@color/White"/>
+
     <EditText
         android:id="@+id/password_textbox_register"
         android:inputType="textPassword"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="10dp"/>
-    <Button
+
+    <Button style="@style/NiceButton"
         android:id="@+id/register_button"
-        android:text="Register"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:text="@string/register_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:gravity="center_horizontal"/>
+
+    <Button style="@style/NiceButton"
+        android:id="@+id/back_to_login_button"
+        android:text="@string/back_to_login_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:gravity="center_horizontal"/>
+
     <TextView
         android:id="@+id/clear_text_register"
-        android:text="Clear Text"
+        android:text="@string/register_clear"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:paddingTop="10dp"/>
+        android:paddingTop="10dp"
+        android:textColor="@color/White"
+        />
+
 </LinearLayout>

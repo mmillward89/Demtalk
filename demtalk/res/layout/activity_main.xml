@@ -5,15 +5,55 @@
     android:layout_width="match_parent"
     android:id="@+id/main_activity_layout">
 
-    <Button
-        android:id="@+id/chat_button"
-        android:text="Post Topic"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-    <Button
-        android:id="@+id/logout_button"
-        android:text="Log Out"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+    <ScrollView
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight="3">
+
+        <LinearLayout
+            android:id="@+id/main_scroll_view"
+            android:orientation="vertical"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content">
+
+            <TextView style="@style/EditTextFont"
+                android:id="@+id/rooms_textview"
+                android:text="@string/rooms_textview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/White"
+                android:textStyle="bold"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="5dp"/>
+
+            <TextView
+                android:id="@+id/main_info_text"
+                android:text="@string/main_info_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/White"
+                android:layout_marginBottom="10dp"/>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <Button
+            android:id="@+id/logout_button"
+            style="@style/NiceButton"
+            android:text="@string/main_log_out"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_gravity="center_horizontal"
+            />
+
+    </LinearLayout>
 
 </LinearLayout>

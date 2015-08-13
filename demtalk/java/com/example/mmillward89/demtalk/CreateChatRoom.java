@@ -7,6 +7,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -30,32 +31,99 @@ public class CreateChatRoom extends AppCompatActivity implements View.OnClickLis
     private EditText subject_textbox, message_textbox;
     private UserLocalStore userLocalStore;
     private User user;
+    String[] Subjects;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_chat_room);
 
         subject_textbox = (EditText) findViewById(R.id.subject_textbox);
         message_textbox = (EditText) findViewById(R.id.message_textbox);
+
         create_chat_button = (Button) findViewById(R.id.create_chat_button);
+        create_chat_button.setOnClickListener(this);
 
         userLocalStore = new UserLocalStore(this);
         user = userLocalStore.getLoggedInUser();
 
-        create_chat_button.setOnClickListener(this);
+        retrieveIntent(savedInstanceState);
+
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_create_chat_room, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch(item.getItemId()) {
+            case R.id.main_menu_icon:
+                startActivity(new Intent(this, MainActivity.class));
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private void retrieveIntent(Bundle savedInstanceState) {
+        if (savedInstanceState == null) {
+            Bundle extras = getIntent().getExtras();
+            if (extras == null) {
+                Subjects = null;
+            } else {
+                Subjects = extras.getStringArray("Subjects");
+            }
+        } else {
+            Subjects = (String[]) savedInstanceState.getSerializable("Subjects");
+        }
     }
 
     @Override
     public void onClick(View v) {
-        String subject = subject_textbox.getText().toString();
-        String message = message_textbox.getText().toString();
-        String[] details = {subject, message};
-        createChat(user, details);
+
+        switch (v.getId()) {
+
+            case R.id.create_chat_button:
+                String subject = subject_textbox.getText().toString();
+
+                if(checkSubjects(subject)) {
+                    String message = message_textbox.getText().toString();
+                    String[] details = {subject, message};
+                    createChat(user, details);
+                }
+                break;
+        }
+
 
     }
 
+    private boolean checkSubjects(String subject) {
+
+        if(subject.equals("")) {
+            showMessage("Please enter a valid subject");
+            return false;
+
+        } else if (Subjects != null) {
+
+            for(int i = 0; i<Subjects.length; i++) {
+                if(subject.equals(Subjects[i])) {
+                    showMessage("Subject already exists, please enter another");
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
     private void createChat(User user, String details[]) {
+
         new CreateChatAsyncTask(user, new PassMessageCallBack() {
             @Override
             public void done(String message) {
@@ -66,13 +134,16 @@ public class CreateChatRoom extends AppCompatActivity implements View.OnClickLis
                 }
             }
         }, details).execute();
+
     }
 
     private void showMessage(String s) {
+
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
         dialogBuilder.setMessage(s);
         dialogBuilder.setPositiveButton("OK", null);
         dialogBuilder.show();
+
     }
 
     private void goToMainActivity() {
@@ -103,6 +174,7 @@ public class CreateChatRoom extends AppCompatActivity implements View.OnClickLis
                     .build();
 
             try {
+
                 connection = new XMPPTCPConnection(config);
                 connection.setPacketReplyTimeout(10000);
                 connection.connect();
@@ -117,7 +189,9 @@ public class CreateChatRoom extends AppCompatActivity implements View.OnClickLis
                 muc.create(username);
                 muc.sendConfigurationForm(new Form(DataForm.Type.submit));
                 muc.changeSubject(subject);
-                muc.sendMessage(message);
+                if(!(message.equals(""))) {
+                    muc.sendMessage(message);
+                }
 
                 connection.disconnect();
 

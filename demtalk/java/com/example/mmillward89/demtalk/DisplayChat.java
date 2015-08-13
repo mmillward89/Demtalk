@@ -3,20 +3,20 @@ package com.example.mmillward89.demtalk;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Gravity;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
-
-import com.example.mmillward89.demtalk.GetChatCallBack;
-import com.example.mmillward89.demtalk.R;
-import com.example.mmillward89.demtalk.User;
-import com.example.mmillward89.demtalk.UserLocalStore;
+import android.widget.Toast;
 
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.MessageListener;
@@ -29,13 +29,14 @@ import org.jivesoftware.smackx.muc.MultiUserChatManager;
 
 public class DisplayChat extends AppCompatActivity implements MessageListener, View.OnClickListener{
     private EditText add_message_textbox;
-    private Button add_message_button, back_to_main_button;
+    private Button add_message_button;
     private String[] Info;
     private UserLocalStore userLocalStore;
     private User user;
     private MultiUserChat chatRoom;
     private LinearLayout scrolllayout;
     private String messageBody;
+    private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,9 +47,12 @@ public class DisplayChat extends AppCompatActivity implements MessageListener, V
         add_message_textbox = (EditText) findViewById(R.id.add_message_textbox);
 
         add_message_button = (Button) findViewById(R.id.add_message_button);
-        back_to_main_button = (Button) findViewById(R.id.back_to_main_button);
         add_message_button.setOnClickListener(this);
-        back_to_main_button.setOnClickListener(this);
+
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setCancelable(false);
+        progressDialog.setTitle("Finding Messages");
+        progressDialog.setMessage("Please wait...");
 
         userLocalStore = new UserLocalStore(this);
         user = userLocalStore.getLoggedInUser();
@@ -62,6 +66,25 @@ public class DisplayChat extends AppCompatActivity implements MessageListener, V
             showMessage("Room information not passed");
         }
 
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_display_chat, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch(item.getItemId()) {
+            case R.id.main_menu_icon:
+                startActivity(new Intent(this, MainActivity.class));
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     private void retrieveIntent(Bundle savedInstanceState) {
@@ -101,12 +124,38 @@ public class DisplayChat extends AppCompatActivity implements MessageListener, V
                     showMessage("Could not send message");
                 }
                 break;
-
-            case R.id.back_to_main_button:
-                Intent intent = new Intent(this, MainActivity.class);
-                startActivity(intent);
-                break;
         }
+    }
+
+    private void addChat(MultiUserChat chatRoom) {
+        this.chatRoom = chatRoom;
+        this.chatRoom.addMessageListener(this);
+    }
+
+    private void addHistory() {
+
+        try {
+            for (int i = 0; i < 5; i++) {
+                Message message = chatRoom.nextMessage();
+
+                if(message != null) {
+                    processMessage(message);
+                } else {
+                    i = 5;
+                }
+            }
+        } catch (Exception e) {
+            showMessage("Could not display chat history");
+        }
+
+    }
+
+    private void showNoMessages() {
+        TextView textView = new TextView(this);
+        textView.setText("No messages currently available");
+        textView.setGravity(Gravity.CENTER_HORIZONTAL);
+        textView.setTextColor(Color.parseColor("#FFFFFF"));
+        scrolllayout.addView(textView);
     }
 
     @Override
@@ -118,35 +167,34 @@ public class DisplayChat extends AppCompatActivity implements MessageListener, V
             @Override
             public void run() {
 
+                TextView textView = new TextView(DisplayChat.this);
+                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams
+                        (LinearLayout.LayoutParams.MATCH_PARENT,
+                                LinearLayout.LayoutParams.WRAP_CONTENT);
+                params.setMargins(15, 15, 15, 15);
+                textView.setLayoutParams(params);
+                textView.setText(messageBody);
+                textView.setTextAppearance(DisplayChat.this, R.style.MessageFont);
+                textView.setTextColor(Color.parseColor("#FFFFFF"));
+                textView.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
+                textView.setBackgroundResource(R.drawable.speech_bubble_reverse);
+
                 try {
-                    TextView textView = new TextView(DisplayChat.this);
-                    textView.setLayoutParams(new LinearLayout.LayoutParams
-                            (LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-                    textView.setText(messageBody);
                     scrolllayout.addView(textView);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    showMessage("Could not add message");
                 }
+
+                showToast();
 
             }
         });
+
     }
 
-    private void addChat(MultiUserChat chatRoom) {
-        this.chatRoom = chatRoom;
-        this.chatRoom.addMessageListener(this);
-    }
-
-    private void addHistory() {
-        try {
-            for (int i = 0; i < 5; i++) {
-                Message message = chatRoom.nextMessage();
-                processMessage(message);
-            }
-        } catch (Exception e) {
-            showMessage("Could not display chat history");
-        }
-
+    private void showToast() {
+        Toast toast = Toast.makeText(getApplicationContext(), "Message received!", Toast.LENGTH_SHORT);
+        toast.show();
     }
 
     private void showMessage(String s) {
@@ -170,6 +218,12 @@ public class DisplayChat extends AppCompatActivity implements MessageListener, V
             returnMessage = "Chat found";
             username = user.getUsername();
             password = user.getPassword();
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressDialog.show();
         }
 
         @Override
@@ -208,6 +262,7 @@ public class DisplayChat extends AppCompatActivity implements MessageListener, V
             super.onPostExecute(multiUserChat);
             addChat(multiUserChat);
             addHistory();
+            progressDialog.dismiss();
             callBack.done(returnMessage);
         }
     }

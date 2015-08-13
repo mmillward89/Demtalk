@@ -4,40 +4,56 @@
     android:layout_height="match_parent"
     android:layout_width="match_parent">
 
-    <TextView
+    <TextView style="@style/EditTextFont"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Username"/>
+        android:text="@string/login_username"
+        android:textColor="@color/White"
+        android:textStyle="bold"
+        android:layout_marginTop="10dp"/>
+
     <EditText
         android:id="@+id/username_textbox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="10dp"/>
-    <TextView
+
+    <TextView style="@style/EditTextFont"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Password"/>
+        android:text="@string/login_password"
+        android:textStyle="bold"
+        android:textColor="@color/White"/>
+
     <EditText
         android:id="@+id/password_textbox"
         android:inputType="textPassword"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="10dp"/>
-    <Button
+
+    <Button style="@style/NiceButton"
         android:id="@+id/login_button"
-        android:text="Log In"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content" />
-    <Button
+        android:text="@string/login_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_gravity="center_horizontal"/>
+
+    <Button style="@style/NiceButton"
         android:id="@+id/startregister_button"
-        android:text="Go To Register Page"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content" />
+        android:text="@string/login_register_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_gravity="center_horizontal"/>
+
     <TextView
         android:id="@+id/clear_text"
-        android:text="Clear Text"
+        android:text="@string/login_clear"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:paddingTop="10dp"/>
+        android:paddingTop="10dp"
+        android:textColor="@color/White"/>
 </LinearLayout>

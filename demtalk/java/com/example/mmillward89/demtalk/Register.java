@@ -21,7 +21,7 @@ import org.jivesoftware.smackx.iqregister.AccountManager;
 
 public class Register extends AppCompatActivity implements View.OnClickListener{
 
-    Button register_button;
+    Button register_button, back_to_login_button;
     EditText username_textbox_register, password_textbox_register;
     TextView clear_text_register;
 
@@ -33,10 +33,12 @@ public class Register extends AppCompatActivity implements View.OnClickListener{
         username_textbox_register = (EditText) findViewById(R.id.username_textbox_register);
         password_textbox_register = (EditText) findViewById(R.id.password_textbox_register);
         register_button = (Button) findViewById(R.id.register_button);
+        back_to_login_button = (Button) findViewById(R.id.back_to_login_button);
         clear_text_register = (TextView) findViewById(R.id.clear_text_register);
 
         register_button.setOnClickListener(this);
         clear_text_register.setOnClickListener(this);
+        back_to_login_button.setOnClickListener(this);
 
     }
 
@@ -53,6 +55,10 @@ public class Register extends AppCompatActivity implements View.OnClickListener{
                     User user = new User(username, password);
                     registerUser(user);
                 }
+                break;
+
+            case R.id.back_to_login_button:
+                startActivity(new Intent(this, Login.class));
                 break;
 
             case R.id.clear_text_register:

@@ -4,16 +4,20 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Gravity;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import org.jivesoftware.smack.ConnectionConfiguration;
@@ -31,28 +35,29 @@ import java.util.Set;
 
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
-    private Button logout_button, chat_button;
+    private Button logout_button;
     private UserLocalStore userLocalStore;
     private User user;
     private ProgressDialog progressDialog;
     private List<HostedRoom> list;
     private HashMap<String, String> map;
+    private String[] Subjects;
+    private LinearLayout linearLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        chat_button = (Button) findViewById(R.id.chat_button);
-        logout_button = (Button) findViewById(R.id.logout_button);
+        linearLayout = (LinearLayout) findViewById(R.id.main_scroll_view);
 
-        chat_button.setOnClickListener(this);
+        logout_button = (Button) findViewById(R.id.logout_button);
         logout_button.setOnClickListener(this);
 
         progressDialog = new ProgressDialog(this);
         progressDialog.setCancelable(false);
-        progressDialog.setTitle("Processing");
-        progressDialog.setMessage("Please wait");
+        progressDialog.setTitle("Adding Chat Rooms");
+        progressDialog.setMessage("Please wait...");
 
         userLocalStore = new UserLocalStore(this);
         user = userLocalStore.getLoggedInUser();
@@ -67,6 +72,32 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             getChatRoomButtons();
         } else {
             startActivity(new Intent(this, Login.class));
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_main, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch(item.getItemId()) {
+            case R.id.main_menu_icon:
+                startActivity(new Intent(this, MainActivity.class));
+                return true;
+
+            case R.id.create_chat_icon:
+                getAllSubjects();
+                Intent intent = new Intent(this, CreateChatRoom.class);
+                intent.putExtra("Subjects", Subjects);
+                startActivity(intent);
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 
@@ -100,19 +131,36 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void addButtons(HashMap<String, String> map) {
-        LinearLayout l = (LinearLayout) findViewById(R.id.main_activity_layout);
 
         if(map.keySet().size() == 0) {
             TextView textView = new TextView(this);
-            textView.setText("No chat rooms created yet.");
-            l.addView(textView);
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams
+                    (LinearLayout.LayoutParams.MATCH_PARENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT);
+            params.setMargins(15, 15, 15, 15);
+            textView.setLayoutParams(params);
+
+            textView.setText("No chat rooms created yet. Select " +
+                    "'Create Chat Room' to create your own.");
+            textView.setTextColor(Color.parseColor("#FFFFFF"));
+            textView.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
+            linearLayout.addView(textView);
         }
         else {
             for (String subject : map.keySet()) {
                 Button b = new Button(this);
+                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams
+                        (LinearLayout.LayoutParams.MATCH_PARENT,
+                                LinearLayout.LayoutParams.WRAP_CONTENT);
+                params.setMargins(15, 15, 15, 15);
+                b.setLayoutParams(params);
+
                 b.setText(subject);
                 b.setOnClickListener(this);
-                l.addView(b);
+                b.setBackgroundResource(R.drawable.buttonshape);
+                b.setTextColor(Color.parseColor("#FFFFFF"));
+                b.setAllCaps(false);
+                linearLayout.addView(b);
             }
         }
 
@@ -121,24 +169,34 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v) {
         switch(v.getId()) {
+
             case R.id.logout_button:
                 userLocalStore.clearUserData();
                 userLocalStore.setUserLoggedIn(false);
                 startActivity(new Intent(this, Login.class));
                 break;
 
-            case R.id.chat_button:
-                startActivity(new Intent(this, CreateChatRoom.class));
-                break;
-
             default:
                 Button b = (Button) v;
                 String subject = b.getText().toString();
                 String jid = map.get(subject);
-                Intent intent = new Intent(this, DisplayChat.class);
-                intent.putExtra("JID", jid);
-                startActivity(intent);
+
+                Intent intent1 = new Intent(this, DisplayChat.class);
+                intent1.putExtra("JID", jid);
+                startActivity(intent1);
                 break;
+        }
+    }
+
+    private void getAllSubjects() {
+
+        int size = map.keySet().size();
+        Subjects = new String[size];
+
+        int i = 0;
+        for(String subject : map.keySet()) {
+            Subjects[i] = subject;
+            i++;
         }
     }
 
@@ -148,7 +206,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         dialogBuilder.setMessage(s);
         dialogBuilder.setPositiveButton("OK", null);
         dialogBuilder.show();
-
     }
 
     //Gets all room subject and JID data and adds them to hash map,
@@ -201,12 +258,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                     if (!(tempMuc.isJoined())) {
                         tempMuc.join(user.getUsername());
-                        Thread.sleep(3000);
+                        Thread.sleep(2000);
                     }
 
                     String subject = tempMuc.getSubject();
                     map.put(subject, jid);
-
                 }
 
                 connection.disconnect();

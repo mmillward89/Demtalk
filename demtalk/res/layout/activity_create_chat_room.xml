@@ -4,23 +4,61 @@
     android:layout_height="match_parent"
     android:layout_width="match_parent">
 
+    <TextView style="@style/EditTextFont"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/create_subject"
+        android:textColor="@color/White"
+        android:textStyle="bold"
+        android:layout_marginTop="10dp"/>
+
+    <TextView
+        android:id="@+id/subject_hint_text"
+        android:text="@string/subject_hint"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/White"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"/>
+
     <EditText
         android:id="@+id/subject_textbox"
-        android:hint="Subject"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
         android:layout_marginBottom="10dp"/>
+
+    <TextView style="@style/EditTextFont"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/create_message"
+        android:textColor="@color/White"
+        android:textStyle="bold"
+        android:layout_marginTop="10dp"/>
+
+    <TextView
+        android:id="@+id/message_hint_text"
+        android:text="@string/message_hint"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/White"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"/>
 
     <EditText
         android:id="@+id/message_textbox"
-        android:hint="Type message here"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
         android:layout_marginBottom="10dp"/>
-    <Button
+
+    <Button style="@style/NiceButton"
         android:id="@+id/create_chat_button"
-        android:hint="Post Topic"
+        android:text="@string/post_topic_button"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="5dp"/>
 
 </LinearLayout>
