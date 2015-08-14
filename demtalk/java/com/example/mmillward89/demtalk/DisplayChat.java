@@ -23,6 +23,7 @@ import org.jivesoftware.smack.MessageListener;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
+import org.jivesoftware.smackx.muc.DefaultUserStatusListener;
 import org.jivesoftware.smackx.muc.DiscussionHistory;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.jivesoftware.smackx.muc.MultiUserChatManager;
@@ -51,8 +52,8 @@ public class DisplayChat extends AppCompatActivity implements MessageListener, V
 
         progressDialog = new ProgressDialog(this);
         progressDialog.setCancelable(false);
-        progressDialog.setTitle("Finding Messages");
-        progressDialog.setMessage("Please wait...");
+        progressDialog.setTitle(getString(R.string.progress_title_display));
+        progressDialog.setMessage(getString(R.string.progress_message));
 
         userLocalStore = new UserLocalStore(this);
         user = userLocalStore.getLoggedInUser();
@@ -63,7 +64,7 @@ public class DisplayChat extends AppCompatActivity implements MessageListener, V
         if(Info[0] != null) {
             joinChat();
         } else{
-            showMessage("Room information not passed");
+            showMessage(getString(R.string.no_room_message));
         }
 
     }
@@ -104,7 +105,7 @@ public class DisplayChat extends AppCompatActivity implements MessageListener, V
         new DisplayChatAsyncTask(user, new PassMessageCallBack() {
             @Override
             public void done(String message) {
-                if(message.equals("Could not find chat, please try again")) {
+                if(message.equals(getString(R.string.couldnt_find_chat))) {
                     showMessage(message);
                 }
             }
@@ -116,13 +117,27 @@ public class DisplayChat extends AppCompatActivity implements MessageListener, V
         switch (v.getId()) {
 
             case R.id.add_message_button:
-                Info[1] = user.getUsername() + ": \"" +
-                        add_message_textbox.getText().toString() + "\"";
-                try {
-                    chatRoom.sendMessage(Info[1]);
-                } catch (Exception e) {
-                    showMessage("Could not send message");
+                String string = add_message_textbox.getText().toString();
+
+                if(string.equals("")) {
+                    showMessage(getString(R.string.please_add_message));
+                } else {
+                    Info[1] = user.getUsername() + ": \"" +
+                            string + "\"";
+                    try {
+                        chatRoom.sendMessage(Info[1]);
+                    } catch (Exception e) {
+                        String s = e.getMessage();
+
+                        //checks if user account was removed
+                        if(s.equals("SASLError using DIGEST-MD5: not-authorized")
+                                || s.equals("Client is not, or no longer, connected")) {
+                            startActivity(new Intent(getApplicationContext(), Login.class));
+                        }
+                        showMessage(getString(R.string.couldnt_send));
+                    }
                 }
+
                 break;
         }
     }
@@ -145,21 +160,21 @@ public class DisplayChat extends AppCompatActivity implements MessageListener, V
                 }
             }
         } catch (Exception e) {
-            showMessage("Could not display chat history");
+            showMessage(getString(R.string.couldnt_display));
         }
 
     }
 
     private void showNoMessages() {
         TextView textView = new TextView(this);
-        textView.setText("No messages currently available");
+        textView.setText(getString(R.string.no_messages));
         textView.setGravity(Gravity.CENTER_HORIZONTAL);
         textView.setTextColor(Color.parseColor("#FFFFFF"));
         scrolllayout.addView(textView);
     }
 
     @Override
-    public void processMessage(Message message) {
+    public void processMessage(final Message message) {
 
         messageBody = message.getBody();
 
@@ -173,16 +188,21 @@ public class DisplayChat extends AppCompatActivity implements MessageListener, V
                                 LinearLayout.LayoutParams.WRAP_CONTENT);
                 params.setMargins(15, 15, 15, 15);
                 textView.setLayoutParams(params);
-                textView.setText(messageBody);
+                textView.setText(getString(R.string.no_messages_added));
+                if (messageBody == null) {
+                    textView.setText(getString(R.string.no_messages_added));
+                } else {
+                    textView.setText(messageBody);
+                    textView.setBackgroundResource(R.drawable.speech_bubble_reverse);
+                }
                 textView.setTextAppearance(DisplayChat.this, R.style.MessageFont);
                 textView.setTextColor(Color.parseColor("#FFFFFF"));
                 textView.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
-                textView.setBackgroundResource(R.drawable.speech_bubble_reverse);
 
                 try {
                     scrolllayout.addView(textView);
                 } catch (Exception e) {
-                    showMessage("Could not add message");
+                    showMessage(getString(R.string.couldnt_send));
                 }
 
                 showToast();
@@ -193,7 +213,8 @@ public class DisplayChat extends AppCompatActivity implements MessageListener, V
     }
 
     private void showToast() {
-        Toast toast = Toast.makeText(getApplicationContext(), "Message received!", Toast.LENGTH_SHORT);
+        Toast toast = Toast.makeText(getApplicationContext(), getString(R.string.message_received),
+                Toast.LENGTH_SHORT);
         toast.show();
     }
 
@@ -215,7 +236,7 @@ public class DisplayChat extends AppCompatActivity implements MessageListener, V
         private DisplayChatAsyncTask(User user, PassMessageCallBack callBack, String[] info) {
             this.callBack = callBack;
             this.info = info;
-            returnMessage = "Chat found";
+            returnMessage = getString(R.string.chat_found);
             username = user.getUsername();
             password = user.getPassword();
         }
@@ -230,8 +251,8 @@ public class DisplayChat extends AppCompatActivity implements MessageListener, V
         protected MultiUserChat doInBackground(Void... params) {
             XMPPTCPConnectionConfiguration config = XMPPTCPConnectionConfiguration.builder()
                     .setUsernameAndPassword(username, password)
-                    .setServiceName("marks-macbook-pro.local")
-                    .setHost("10.0.2.2")
+                    .setServiceName(getString(R.string.service_name))
+                    .setHost(getString(R.string.host_name))
                     .setPort(5222).setSecurityMode(ConnectionConfiguration.SecurityMode.disabled)
                     .build();
 
@@ -250,8 +271,23 @@ public class DisplayChat extends AppCompatActivity implements MessageListener, V
                 history.setMaxStanzas(5);
                 multiUserChat.join(username, "", history, connection.getPacketReplyTimeout());
 
+                multiUserChat.addUserStatusListener(new DefaultUserStatusListener() {
+                    @Override
+                    public void banned(String actor, String reason) {
+                        super.banned(actor, reason);
+                        startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                    }
+                });
+
             } catch (Exception e) {
-                returnMessage = "Could not find chat, please try again";
+                String s = e.getMessage();
+
+                //checks if user account was removed
+                if(s.equals("SASLError using DIGEST-MD5: not-authorized")) {
+                    startActivity(new Intent(getApplicationContext(), Login.class));
+                }
+
+                returnMessage = getString(R.string.couldnt_find_chat);
             }
 
             return multiUserChat;

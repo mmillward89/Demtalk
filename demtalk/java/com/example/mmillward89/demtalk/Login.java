@@ -54,6 +54,8 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
         clear_text.setOnClickListener(this);
 
         userLocalStore = new UserLocalStore(this);
+        userLocalStore.clearUserData();
+        userLocalStore.setUserLoggedIn(false);
     }
 
     @Override
@@ -63,7 +65,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
                 String username = username_textbox.getText().toString();
                 String password = password_textbox.getText().toString();
                 if(username.equals("") || password.equals("")){
-                    showMessage("Please add a username and password.");
+                    showMessage(getString(R.string.blank_textboxes));
                 } else {
                     User user = new User(username, password);
                     authenticate(user);
@@ -129,8 +131,8 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
 
             XMPPTCPConnectionConfiguration config = XMPPTCPConnectionConfiguration.builder()
                     .setUsernameAndPassword(username, password)
-                    .setServiceName("marks-macbook-pro.local")
-                    .setHost("10.0.2.2")
+                    .setServiceName(getString(R.string.service_name))
+                    .setHost(getString(R.string.host_name))
                     .setPort(5222).setSecurityMode(ConnectionConfiguration.SecurityMode.disabled)
                     .build();
 
@@ -145,7 +147,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
                 connection.disconnect();
 
             } catch(Exception e) {
-                returnMessage = "Could not login, please ensure details are correct";
+                returnMessage = getString(R.string.couldnt_login_message);
             }
 
             return returnedUser;

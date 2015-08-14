@@ -10,6 +10,10 @@
     <string name="login_button">Log In</string>
     <string name="login_register_button">Register New User</string>
     <string name="login_clear">Clear Text</string>
+    <string name="blank_textboxes">Please add a username and password.</string>
+    <string name="service_name">marks-macbook-pro.local</string>
+    <string name="host_name">10.0.2.2</string>
+    <string name="couldnt_login_message">Could not login, please ensure details are correct</string>
 
     <string name="title_activity_register">Register</string>
     <string name="register_username">Username</string>
@@ -17,26 +21,50 @@
     <string name="register_button">Register</string>
     <string name="back_to_login_button">Back to Login</string>
     <string name="register_clear">Clear Text</string>
+    <string name="account_created">Account created</string>
+    <string name="couldnt_register_message">Could not register details, username may already exist</string>
 
     <string name="title_activity_main">Home Page</string>
     <string name="rooms_textview">Available Chat Rooms</string>
     <string name="main_info_text">Scroll and select to view. Select speech bubble to create chat room.</string>
+    <string name="no_chat_rooms">No chat rooms created yet. Select \'Create Chat Room\' to create your own!</string>
     <string name="main_post_topic">Create Chat Room</string>
     <string name="subject_hint">Displayed for users to select on the home screen</string>
     <string name="message_hint">First message displayed when users enter room</string>
     <string name="main_log_out">Log Out</string>
+    <string name="progress_title">Adding Chat Rooms</string>
+    <string name="progress_message">Please wait...</string>
+    <string name="subjects_found">Subjects found</string>
+    <string name="could_not_connect">Could not connect</string>
 
     <string name="title_activity_create_chat_room">CreateChatRoom</string>
     <string name="create_subject">Subject</string>
     <string name="create_message">Message</string>
     <string name="post_topic_button">Create Room</string>
     <string name="create_chat_to_main">Back to Main</string>
+    <string name="no_subjects">Please enter a valid subject</string>
+    <string name="subject_exists">Subject already exists, please try another.
+        Check the home screen if you are unsure!</string>
+    <string name="no_chat_room">Could not create chat, please try again</string>
+    <string name="chat_created">Chat created</string>
+    <string name="couldnt_create_chat">Could not create chat, please try again</string>
 
     <string name="title_activity_display_chat">DisplayChat</string>
     <string name="add_message_button">Add Message</string>
     <string name="add_message_hint">Message will appear in conversation above</string>
     <string name="display_chat_to_main">Back to Main</string>
     <string name="add_message_textview">Enter Message</string>
+    <string name="progress_title_display">Finding Messages</string>
+    <string name="no_room_message">Room information not passed</string>
+    <string name="couldnt_find_chat">Could not find chat, please try again</string>
+    <string name="couldnt_send">Could not send message</string>
+    <string name="couldnt_display">Could not display chat history</string>
+    <string name="no_messages">No messages currently available</string>
+    <string name="message_received">Message received!</string>
+    <string name="chat_found">Chat found</string>
+    <string name="please_add_message">Please add message</string>
+    <string name="no_messages_added">No messages added yet. Type yours below to
+        get the conversation started!</string>
 
     <color name="Azure">#336699</color>
     <color name="White">#FFFFFF</color>

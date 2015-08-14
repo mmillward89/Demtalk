@@ -53,6 +53,19 @@ public class CreateChatRoom extends AppCompatActivity implements View.OnClickLis
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+
+        if(!authenticate()){
+            startActivity(new Intent(this, Login.class));
+        }
+    }
+
+    private boolean authenticate() {
+        return userLocalStore.getUserLoggedIn();
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_create_chat_room, menu);
@@ -106,14 +119,14 @@ public class CreateChatRoom extends AppCompatActivity implements View.OnClickLis
     private boolean checkSubjects(String subject) {
 
         if(subject.equals("")) {
-            showMessage("Please enter a valid subject");
+            showMessage(getString(R.string.no_subjects));
             return false;
 
         } else if (Subjects != null) {
 
             for(int i = 0; i<Subjects.length; i++) {
                 if(subject.equals(Subjects[i])) {
-                    showMessage("Subject already exists, please enter another");
+                    showMessage(getString(R.string.subject_exists));
                     return false;
                 }
             }
@@ -127,7 +140,7 @@ public class CreateChatRoom extends AppCompatActivity implements View.OnClickLis
         new CreateChatAsyncTask(user, new PassMessageCallBack() {
             @Override
             public void done(String message) {
-                if(message.equals("Could not create chat, please try again")) {
+                if(message.equals(getString(R.string.no_chat_room))) {
                     showMessage(message);
                 } else {
                     goToMainActivity();
@@ -161,15 +174,15 @@ public class CreateChatRoom extends AppCompatActivity implements View.OnClickLis
             this.callBack = callBack;
             subject= details[0]; message = details[1];
             username = user.getUsername(); password = user.getPassword();
-            returnMessage = "Chat created";
+            returnMessage = getString(R.string.chat_created);
         }
 
         @Override
         protected String doInBackground(Void... params) {
             XMPPTCPConnectionConfiguration config = XMPPTCPConnectionConfiguration.builder()
                     .setUsernameAndPassword(username, password)
-                    .setServiceName("marks-macbook-pro.local")
-                    .setHost("10.0.2.2")
+                    .setServiceName(getString(R.string.service_name))
+                    .setHost(getString(R.string.host_name))
                     .setPort(5222).setSecurityMode(ConnectionConfiguration.SecurityMode.disabled)
                     .build();
 
@@ -181,10 +194,12 @@ public class CreateChatRoom extends AppCompatActivity implements View.OnClickLis
                 connection.login(username, password);
 
                 MultiUserChatManager manager = MultiUserChatManager.getInstanceFor(connection);
-                List<HostedRoom> list = manager.getHostedRooms("conference.marks-macbook-pro.local");
+                List<HostedRoom> list = manager.getHostedRooms("conference." +
+                        getString(R.string.service_name));
                 int i = (list.size()) + 1;
                 MultiUserChat muc =
-                        manager.getMultiUserChat("room" + i + "@conference.marks-macbook-pro.local");
+                        manager.getMultiUserChat("room" + i + "@conference." +
+                                getString(R.string.service_name));
 
                 muc.create(username);
                 muc.sendConfigurationForm(new Form(DataForm.Type.submit));
@@ -196,9 +211,16 @@ public class CreateChatRoom extends AppCompatActivity implements View.OnClickLis
                 connection.disconnect();
 
             } catch (Exception e) {
+                String s = e.getMessage();
+
+                //checks if user account was removed
+                if(s.equals("SASLError using DIGEST-MD5: not-authorized")) {
+                    startActivity(new Intent(getApplicationContext(), Login.class));
+                }
+
                 //Try again as it's possible but very unlikely creating chat rooms will overlap
                 //and connection has already been established to log in
-                returnMessage = "Could not create chat, please try again";
+                returnMessage = getString(R.string.couldnt_create_chat);
             }
 
             return returnMessage;

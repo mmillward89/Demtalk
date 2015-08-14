@@ -5,6 +5,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -21,11 +22,14 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import org.jivesoftware.smack.ConnectionConfiguration;
+import org.jivesoftware.smack.sasl.SASLError;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
+import org.jivesoftware.smackx.muc.DefaultUserStatusListener;
 import org.jivesoftware.smackx.muc.HostedRoom;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.jivesoftware.smackx.muc.MultiUserChatManager;
+import org.jivesoftware.smackx.muc.UserStatusListener;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -56,8 +60,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         progressDialog = new ProgressDialog(this);
         progressDialog.setCancelable(false);
-        progressDialog.setTitle("Adding Chat Rooms");
-        progressDialog.setMessage("Please wait...");
+        progressDialog.setTitle(getString(R.string.progress_title));
+        progressDialog.setMessage(getString(R.string.progress_message));
 
         userLocalStore = new UserLocalStore(this);
         user = userLocalStore.getLoggedInUser();
@@ -102,71 +106,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
-        this.map = null;
-        //remove map as needs to refresh with newly created chat rooms
-        //don't want duplicate key/value pairs
-    }
-
-    private boolean authenticate() {
-        return userLocalStore.getUserLoggedIn();
-    }
-
-    private void getChatRoomButtons() {
-        new GetChatRoomData(user, new PassMessageCallBack() {
-            @Override
-            public void done(String returnMessage) {
-
-                if(returnMessage.equals("Could not connect")) {
-                    showMessage(returnMessage);
-                }
-
-            }
-        }, this).execute();
-    }
-
-    private void addMap(HashMap<String, String> map) {
-        this.map = map;
-    }
-
-    private void addButtons(HashMap<String, String> map) {
-
-        if(map.keySet().size() == 0) {
-            TextView textView = new TextView(this);
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams
-                    (LinearLayout.LayoutParams.MATCH_PARENT,
-                            LinearLayout.LayoutParams.WRAP_CONTENT);
-            params.setMargins(15, 15, 15, 15);
-            textView.setLayoutParams(params);
-
-            textView.setText("No chat rooms created yet. Select " +
-                    "'Create Chat Room' to create your own.");
-            textView.setTextColor(Color.parseColor("#FFFFFF"));
-            textView.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
-            linearLayout.addView(textView);
-        }
-        else {
-            for (String subject : map.keySet()) {
-                Button b = new Button(this);
-                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams
-                        (LinearLayout.LayoutParams.MATCH_PARENT,
-                                LinearLayout.LayoutParams.WRAP_CONTENT);
-                params.setMargins(15, 15, 15, 15);
-                b.setLayoutParams(params);
-
-                b.setText(subject);
-                b.setOnClickListener(this);
-                b.setBackgroundResource(R.drawable.buttonshape);
-                b.setTextColor(Color.parseColor("#FFFFFF"));
-                b.setAllCaps(false);
-                linearLayout.addView(b);
-            }
-        }
-
-    }
-
-    @Override
     public void onClick(View v) {
         switch(v.getId()) {
 
@@ -186,6 +125,69 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 startActivity(intent1);
                 break;
         }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        this.map = null;
+        //remove map as needs to refresh with newly created chat rooms
+        //don't want duplicate key/value pairs
+    }
+
+    private boolean authenticate() {
+        return userLocalStore.getUserLoggedIn();
+    }
+
+    private void getChatRoomButtons() {
+        new GetChatRoomData(user, new PassMessageCallBack() {
+            @Override
+            public void done(String returnMessage) {
+
+                if(returnMessage.equals(getString(R.string.could_not_connect))) {
+                    showMessage(returnMessage);
+                    startActivity(new Intent(MainActivity.this, Login.class));
+                }
+
+            }
+        }, this).execute();
+    }
+
+    private void addMap(HashMap<String, String> map) {
+        this.map = map;
+    }
+
+    private void addButtons(HashMap<String, String> map) {
+
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams
+                (LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT);
+        params.setMargins(15, 15, 15, 15);
+
+        if(map.keySet().size() == 0) {
+            TextView textView = new TextView(this);
+            textView.setLayoutParams(params);
+            textView.setText(R.string.no_chat_rooms);
+            textView.setTextColor(Color.parseColor("#FFFFFF"));
+            textView.setTypeface(null, Typeface.BOLD);
+            textView.setTextSize(15);
+            textView.setAllCaps(false);
+            textView.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
+            linearLayout.addView(textView);
+        }
+        else {
+            for (String subject : map.keySet()) {
+                Button b = new Button(this);
+                b.setLayoutParams(params);
+                b.setText(subject);
+                b.setOnClickListener(this);
+                b.setBackgroundResource(R.drawable.buttonshape);
+                b.setTextColor(Color.parseColor("#FFFFFF"));
+                b.setAllCaps(false);
+                linearLayout.addView(b);
+            }
+        }
+
     }
 
     private void getAllSubjects() {
@@ -221,7 +223,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             this.context = context;
             this.callBack = callBack;
             username = user.getUsername(); password = user.getPassword();
-            returnMessage = "Subjects found";
+            returnMessage = getString(R.string.subjects_found);
         }
 
         @Override
@@ -234,8 +236,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         protected HashMap<String, String> doInBackground(Void... params) {
             XMPPTCPConnectionConfiguration config = XMPPTCPConnectionConfiguration.builder()
                     .setUsernameAndPassword(username, password)
-                    .setServiceName("marks-macbook-pro.local")
-                    .setHost("10.0.2.2")
+                    .setServiceName(getString(R.string.service_name))
+                    .setHost(getString(R.string.host_name))
                     .setPort(5222).setSecurityMode(ConnectionConfiguration.SecurityMode.disabled)
                     .build();
 
@@ -248,7 +250,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 connection.login(username, password);
 
                 MultiUserChatManager manager = MultiUserChatManager.getInstanceFor(connection);
-                list = manager.getHostedRooms("conference.marks-macbook-pro.local");
+                list = manager.getHostedRooms("conference." + getString(R.string.service_name));
 
 
                 for (HostedRoom room : list) {
@@ -268,7 +270,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 connection.disconnect();
 
             } catch (Exception e) {
-                returnMessage = "Could not connect";
+                String s = e.getMessage();
+
+                //checks if user account was removed
+                if(s.equals("SASLError using DIGEST-MD5: not-authorized")) {
+                    startActivity(new Intent(getApplicationContext(), Login.class));
+                }
+                returnMessage = getString(R.string.could_not_connect);
             }
 
             return map;

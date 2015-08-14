@@ -50,7 +50,7 @@ public class Register extends AppCompatActivity implements View.OnClickListener{
                 String username = username_textbox_register.getText().toString();
                 String password = password_textbox_register.getText().toString();
                 if(username.equals("") || password.equals("")){
-                    showMessage("Please add a username and password.");
+                    showMessage(getString(R.string.blank_textboxes));
                 } else {
                     User user = new User(username, password);
                     registerUser(user);
@@ -73,7 +73,6 @@ public class Register extends AppCompatActivity implements View.OnClickListener{
             @Override
             public void done(String message, User returnedUser) {
                 showMessage(message);
-                startActivity(new Intent(Register.this, Login.class));
             }
         }).execute();
     }
@@ -102,8 +101,8 @@ public class Register extends AppCompatActivity implements View.OnClickListener{
         protected String doInBackground(Void... params) {
             XMPPTCPConnectionConfiguration config = XMPPTCPConnectionConfiguration.builder()
                     .setUsernameAndPassword(username, password)
-                    .setServiceName("marks-macbook-pro.local")
-                    .setHost("10.0.2.2")
+                    .setServiceName(getString(R.string.service_name))
+                    .setHost(getString(R.string.host_name))
                     .setPort(5222).setSecurityMode(ConnectionConfiguration.SecurityMode.disabled)
                     .build();
             try {
@@ -113,12 +112,12 @@ public class Register extends AppCompatActivity implements View.OnClickListener{
 
                 AccountManager manager = AccountManager.getInstance(connection);
                 manager.createAccount(username, password);
-                returnMessage = "Account created";
+                returnMessage = getString(R.string.account_created);
 
                 connection.disconnect();
 
             } catch(Exception e) {
-                returnMessage = "Could not register details, please ensure details are correct";
+                returnMessage = getString(R.string.couldnt_register_message);
             }
 
             return returnMessage;
