@@ -12,7 +12,7 @@
     <string name="login_clear">Clear Text</string>
     <string name="blank_textboxes">Please add a username and password.</string>
     <string name="service_name">marks-macbook-pro.local</string>
-    <string name="host_name">10.0.2.2</string>
+    <string name="host_name">192.168.0.2</string>
     <string name="couldnt_login_message">Could not login, please ensure details are correct</string>
 
     <string name="title_activity_register">Register</string>
@@ -26,7 +26,8 @@
 
     <string name="title_activity_main">Home Page</string>
     <string name="rooms_textview">Available Chat Rooms</string>
-    <string name="main_info_text">Scroll and select to view. Select speech bubble to create chat room.</string>
+    <string name="main_info_text">Scroll and select to view chat rooms.
+        Hit the speech bubble to create your own.</string>
     <string name="no_chat_rooms">No chat rooms created yet. Select \'Create Chat Room\' to create your own!</string>
     <string name="main_post_topic">Create Chat Room</string>
     <string name="subject_hint">Displayed for users to select on the home screen</string>
@@ -63,8 +64,8 @@
     <string name="message_received">Message received!</string>
     <string name="chat_found">Chat found</string>
     <string name="please_add_message">Please add message</string>
-    <string name="no_messages_added">No messages added yet. Type yours below to
-        get the conversation started!</string>
+    <string name="no_messages_added">Messages will appear below. If none appear feel free to add your own
+        and break the ice.</string>
 
     <color name="Azure">#336699</color>
     <color name="White">#FFFFFF</color>
@@ -72,6 +73,7 @@
 
     <string name="create_chat_icon">Create Chat Room</string>
     <string name="main_menu_icon">Display All Rooms</string>
+    <string name="log_out_icon">Log Out</string>
 
 
 </resources>

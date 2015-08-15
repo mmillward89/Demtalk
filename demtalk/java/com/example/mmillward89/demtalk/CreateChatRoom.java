@@ -6,12 +6,14 @@ import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
@@ -28,6 +30,7 @@ import java.util.Random;
 
 public class CreateChatRoom extends AppCompatActivity implements View.OnClickListener{
     private Button create_chat_button;
+    private TextView clear_text;
     private EditText subject_textbox, message_textbox;
     private UserLocalStore userLocalStore;
     private User user;
@@ -41,6 +44,8 @@ public class CreateChatRoom extends AppCompatActivity implements View.OnClickLis
 
         subject_textbox = (EditText) findViewById(R.id.subject_textbox);
         message_textbox = (EditText) findViewById(R.id.message_textbox);
+        clear_text = (TextView) findViewById(R.id.clear_text_chat);
+        clear_text.setOnClickListener(this);
 
         create_chat_button = (Button) findViewById(R.id.create_chat_button);
         create_chat_button.setOnClickListener(this);
@@ -79,6 +84,10 @@ public class CreateChatRoom extends AppCompatActivity implements View.OnClickLis
                 startActivity(new Intent(this, MainActivity.class));
                 return true;
 
+            case R.id.log_out_icon:
+                startActivity(new Intent(this, Login.class));
+                return true;
+
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -111,9 +120,23 @@ public class CreateChatRoom extends AppCompatActivity implements View.OnClickLis
                     createChat(user, details);
                 }
                 break;
+
+            case R.id.clear_text_chat:
+                subject_textbox.setText("");
+                message_textbox.setText("");
+                break;
         }
 
 
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if(keyCode == KeyEvent.KEYCODE_BACK) {
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
+        }
+        return super.onKeyDown(keyCode, event);
     }
 
     private boolean checkSubjects(String subject) {

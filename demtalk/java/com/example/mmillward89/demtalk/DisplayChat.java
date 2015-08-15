@@ -8,6 +8,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -31,6 +32,7 @@ import org.jivesoftware.smackx.muc.MultiUserChatManager;
 public class DisplayChat extends AppCompatActivity implements MessageListener, View.OnClickListener{
     private EditText add_message_textbox;
     private Button add_message_button;
+    private TextView clear_text;
     private String[] Info;
     private UserLocalStore userLocalStore;
     private User user;
@@ -46,6 +48,8 @@ public class DisplayChat extends AppCompatActivity implements MessageListener, V
 
         scrolllayout = (LinearLayout) findViewById(R.id.scroll_layout);
         add_message_textbox = (EditText) findViewById(R.id.add_message_textbox);
+        clear_text = (TextView) findViewById(R.id.clear_text_display);
+        clear_text.setOnClickListener(this);
 
         add_message_button = (Button) findViewById(R.id.add_message_button);
         add_message_button.setOnClickListener(this);
@@ -81,6 +85,10 @@ public class DisplayChat extends AppCompatActivity implements MessageListener, V
         switch(item.getItemId()) {
             case R.id.main_menu_icon:
                 startActivity(new Intent(this, MainActivity.class));
+                return true;
+
+            case R.id.log_out_icon:
+                startActivity(new Intent(this, Login.class));
                 return true;
 
             default:
@@ -139,7 +147,20 @@ public class DisplayChat extends AppCompatActivity implements MessageListener, V
                 }
 
                 break;
+
+            case R.id.clear_text_display:
+                add_message_textbox.setText("");
+                break;
         }
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if(keyCode == KeyEvent.KEYCODE_BACK) {
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
+        }
+        return super.onKeyDown(keyCode, event);
     }
 
     private void addChat(MultiUserChat chatRoom) {

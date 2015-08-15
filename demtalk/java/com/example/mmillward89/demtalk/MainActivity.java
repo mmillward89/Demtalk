@@ -100,6 +100,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 startActivity(intent);
                 return true;
 
+            case R.id.log_out_icon:
+                startActivity(new Intent(this, Login.class));
+                return true;
+
             default:
                 return super.onOptionsItemSelected(item);
         }
