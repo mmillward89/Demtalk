@@ -1,16 +1,16 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="com.example.mmillward89.demtalk.CreateChatRoom">
+    tools:context="com.example.mmillward89.demtalk.DisplayLinks">
 
     <item android:id="@+id/main_menu_icon"
         android:icon="@drawable/ic_database"
         android:title="@string/main_menu_icon"
         app:showAsAction="ifRoom"/>
 
-    <item android:id="@+id/display_links_icon"
-        android:icon="@drawable/ic_at"
-        android:title="@string/display_links_icon"
+    <item android:id="@+id/create_chat_icon"
+        android:icon="@drawable/ic_comment_processing"
+        android:title="@string/create_chat_icon"
         app:showAsAction="ifRoom"/>
 
     <item android:id="@+id/log_out_icon"

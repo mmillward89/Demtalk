@@ -87,6 +87,10 @@ public class DisplayChat extends AppCompatActivity implements MessageListener, V
                 startActivity(new Intent(this, MainActivity.class));
                 return true;
 
+            case R.id.display_links_icon:
+                startActivity(new Intent(this, DisplayLinks.class));
+                return true;
+
             case R.id.log_out_icon:
                 startActivity(new Intent(this, Login.class));
                 return true;

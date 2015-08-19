@@ -12,7 +12,7 @@
     <string name="login_clear">Clear Text</string>
     <string name="blank_textboxes">Please add a username and password.</string>
     <string name="service_name">marks-macbook-pro.local</string>
-    <string name="host_name">192.168.0.2</string>
+    <string name="host_name">10.44.153.120</string>
     <string name="couldnt_login_message">Could not login, please ensure details are correct</string>
 
     <string name="title_activity_register">Register</string>
@@ -27,7 +27,7 @@
     <string name="title_activity_main">Home Page</string>
     <string name="rooms_textview">Available Chat Rooms</string>
     <string name="main_info_text">Scroll and select to view chat rooms.
-        Hit the speech bubble to create your own.</string>
+        Hit the speech bubble to create your own, or another icon to navigate between pages.</string>
     <string name="no_chat_rooms">No chat rooms created yet. Select \'Create Chat Room\' to create your own!</string>
     <string name="main_post_topic">Create Chat Room</string>
     <string name="subject_hint">Displayed for users to select on the home screen</string>
@@ -65,7 +65,15 @@
     <string name="chat_found">Chat found</string>
     <string name="please_add_message">Please add message</string>
     <string name="no_messages_added">Messages will appear below. If none appear feel free to add your own
-        and break the ice.</string>
+        and get the conversation started.</string>
+
+    <string name="title_activity_display_links">DisplayLinks</string>
+    <string name="links_title">Links and Useful Information</string>
+    <string name="display_links_intro">Save and display links for reference.</string>
+    <string name="add_link"><u>Link Address (e.g. www.google.com)</u></string>
+    <string name="add_name"><u>Link Name (e.g. Google)</u></string>
+    <string name="add_link_button">Add Link</string>
+    <string name="couldnt_open">Could not access stored links</string>
 
     <color name="Azure">#336699</color>
     <color name="White">#FFFFFF</color>
@@ -73,6 +81,7 @@
 
     <string name="create_chat_icon">Create Chat Room</string>
     <string name="main_menu_icon">Display All Rooms</string>
+    <string name="display_links_icon">Display Links</string>
     <string name="log_out_icon">Log Out</string>
 
 

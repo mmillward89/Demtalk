@@ -13,6 +13,11 @@
         android:title="@string/create_chat_icon"
         app:showAsAction="ifRoom"/>
 
+    <item android:id="@+id/display_links_icon"
+        android:icon="@drawable/ic_at"
+        android:title="@string/display_links_icon"
+        app:showAsAction="ifRoom"/>
+
     <item android:id="@+id/log_out_icon"
         android:icon="@drawable/ic_logout"
         android:title="@string/log_out_icon"
