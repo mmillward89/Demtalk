@@ -41,6 +41,11 @@ public class DisplayChat extends AppCompatActivity implements MessageListener, V
     private String messageBody;
     private ProgressDialog progressDialog;
 
+    /**
+     * Sets up buttons and layout, progess dialog, retrieves intent and calls
+     * system to join chat room as appropriate
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,6 +78,11 @@ public class DisplayChat extends AppCompatActivity implements MessageListener, V
 
     }
 
+    /**
+     * Adds icons to menu
+     * @param menu
+     * @return
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -80,6 +90,11 @@ public class DisplayChat extends AppCompatActivity implements MessageListener, V
         return super.onCreateOptionsMenu(menu);
     }
 
+    /**
+     * Icons are set to call appropriate activity
+     * @param item
+     * @return
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
@@ -100,6 +115,10 @@ public class DisplayChat extends AppCompatActivity implements MessageListener, V
         }
     }
 
+    /**
+     * Retrieves subject and JID data
+     * @param savedInstanceState
+     */
     private void retrieveIntent(Bundle savedInstanceState) {
         if (savedInstanceState == null) {
             Bundle extras = getIntent().getExtras();
@@ -113,6 +132,9 @@ public class DisplayChat extends AppCompatActivity implements MessageListener, V
         }
     }
 
+    /**
+     * Calls thread to join the appropriate chat room
+     */
     private void joinChat() {
         new DisplayChatAsyncTask(user, new PassMessageCallBack() {
             @Override
@@ -124,6 +146,10 @@ public class DisplayChat extends AppCompatActivity implements MessageListener, V
         },Info).execute();
     }
 
+    /**
+     * Defines add message function, checking that the message is there and that it sends
+     * @param v
+     */
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -158,6 +184,12 @@ public class DisplayChat extends AppCompatActivity implements MessageListener, V
         }
     }
 
+    /**
+     * Defines back key press to go to home page
+     * @param keyCode
+     * @param event
+     * @return
+     */
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if(keyCode == KeyEvent.KEYCODE_BACK) {
@@ -167,11 +199,19 @@ public class DisplayChat extends AppCompatActivity implements MessageListener, V
         return super.onKeyDown(keyCode, event);
     }
 
+    /**
+     * Adds chat room object to activity
+     * @param chatRoom
+     */
     private void addChat(MultiUserChat chatRoom) {
         this.chatRoom = chatRoom;
         this.chatRoom.addMessageListener(this);
     }
 
+    /**
+     * Adds chat room history messages to layout, calling processMessage to practically
+     * add the message string object
+     */
     private void addHistory() {
 
         try {
@@ -190,6 +230,9 @@ public class DisplayChat extends AppCompatActivity implements MessageListener, V
 
     }
 
+    /**
+     * Adds a text view if no current messages exist within the system
+     */
     private void showNoMessages() {
         TextView textView = new TextView(this);
         textView.setText(getString(R.string.no_messages));
@@ -198,6 +241,10 @@ public class DisplayChat extends AppCompatActivity implements MessageListener, V
         scrolllayout.addView(textView);
     }
 
+    /**
+     * Takes the message content and adds a representation to the layout
+     * @param message
+     */
     @Override
     public void processMessage(final Message message) {
 
@@ -237,12 +284,20 @@ public class DisplayChat extends AppCompatActivity implements MessageListener, V
 
     }
 
+    /**
+     * Shows a brief notification to the user, called when messages are added to the
+     * chat room
+     */
     private void showToast() {
         Toast toast = Toast.makeText(getApplicationContext(), getString(R.string.message_received),
                 Toast.LENGTH_SHORT);
         toast.show();
     }
 
+    /**
+     * Creates an alert dialog based on the user parameters
+     * @param s
+     */
     private void showMessage(String s) {
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
         dialogBuilder.setMessage(s);
@@ -266,12 +321,20 @@ public class DisplayChat extends AppCompatActivity implements MessageListener, V
             password = user.getPassword();
         }
 
+        /**
+         * Creates a progress dialog to avoid user input
+         */
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
             progressDialog.show();
         }
 
+        /**
+         * Retrieves chat room information and joins it
+         * @param params
+         * @return
+         */
         @Override
         protected MultiUserChat doInBackground(Void... params) {
             XMPPTCPConnectionConfiguration config = XMPPTCPConnectionConfiguration.builder()
@@ -318,6 +381,10 @@ public class DisplayChat extends AppCompatActivity implements MessageListener, V
             return multiUserChat;
         }
 
+        /**
+         * Calls methods to add information to layout and dismiss progress dialog
+         * @param multiUserChat
+         */
         @Override
         protected void onPostExecute(MultiUserChat multiUserChat) {
             super.onPostExecute(multiUserChat);

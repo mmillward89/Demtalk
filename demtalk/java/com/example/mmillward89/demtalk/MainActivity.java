@@ -48,6 +48,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private String[] Subjects;
     private LinearLayout linearLayout;
 
+    /**
+     * Initializes the buttons, layout, user local store and progress dialog.
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,6 +72,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
+    /**
+     * Checks that the user is logged in, and if so, calls method to
+     * load chat room buttons, otherwise sends user to login activity
+     */
     @Override
     protected void onStart() {
         super.onStart();
@@ -79,6 +87,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    /**
+     * Creates the icon menu
+     * @param menu
+     * @return
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -86,6 +99,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return super.onCreateOptionsMenu(menu);
     }
 
+    /**
+     * Defines the icona ctions, sending user to the appropriate activity
+     * @param item
+     * @return
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
@@ -113,6 +131,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    /**
+     * Determines functionality for logout button and chat room buttons
+     * @param v
+     */
     @Override
     public void onClick(View v) {
         switch(v.getId()) {
@@ -135,6 +157,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    /**
+     * Removes subject data to ensure information is reloaded for each activity refresh
+     */
     @Override
     protected void onStop() {
         super.onStop();
@@ -143,10 +168,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //don't want duplicate key/value pairs
     }
 
+    /**
+     * Determines user is logged in
+     * @return
+     */
     private boolean authenticate() {
         return userLocalStore.getUserLoggedIn();
     }
 
+    /**
+     * Calls thread to get chat room data and create buttons
+     */
     private void getChatRoomButtons() {
         new GetChatRoomData(user, new PassMessageCallBack() {
             @Override
@@ -161,10 +193,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }, this).execute();
     }
 
+    /**
+     * Adds Chat Room subject map data to variable object
+     * @param map
+     */
     private void addMap(HashMap<String, String> map) {
         this.map = map;
     }
 
+    /**
+     * Adds a chat room button for all available chat rooms to the layout,
+     * setting the appropriate information
+     * @param map
+     */
     private void addButtons(HashMap<String, String> map) {
 
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams
@@ -198,6 +239,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
+    /**
+     * Adds all room subject data to an array
+     */
     private void getAllSubjects() {
 
         int size = map.keySet().size();
@@ -210,6 +254,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    /**
+     * Creates and shows an alert dialog with the parameter message
+     * @param s
+     */
     private void showMessage(String s) {
 
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
@@ -234,12 +282,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             returnMessage = getString(R.string.subjects_found);
         }
 
+        /**
+         * Shows progress dialog to prevent user input
+         */
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
             progressDialog.show();
         }
 
+        /**
+         * Creates a connection to the server and returns chat room subject and JID data
+         * @param params
+         * @return
+         */
         @Override
         protected HashMap<String, String> doInBackground(Void... params) {
             XMPPTCPConnectionConfiguration config = XMPPTCPConnectionConfiguration.builder()
@@ -290,6 +346,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             return map;
         }
 
+        /**
+         * Calls the methods to add the data and display buttons, removes progress dialog
+         * @param map
+         */
         @Override
         protected void onPostExecute(HashMap<String, String> map) {
             super.onPostExecute(map);

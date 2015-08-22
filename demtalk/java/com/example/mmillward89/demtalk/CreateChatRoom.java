@@ -36,6 +36,10 @@ public class CreateChatRoom extends AppCompatActivity implements View.OnClickLis
     private User user;
     String[] Subjects;
 
+    /**
+     * Initializes interface and userlocalstore, retrieves intent information
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -57,6 +61,9 @@ public class CreateChatRoom extends AppCompatActivity implements View.OnClickLis
 
     }
 
+    /**
+     * Confirms user is logged in, takes them to login if not
+     */
     @Override
     protected void onStart() {
         super.onStart();
@@ -66,10 +73,19 @@ public class CreateChatRoom extends AppCompatActivity implements View.OnClickLis
         }
     }
 
+    /**
+     * Returns true if user is logged in
+     * @return
+     */
     private boolean authenticate() {
         return userLocalStore.getUserLoggedIn();
     }
 
+    /**
+     * Adds action bar and icons
+     * @param menu
+     * @return
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -77,6 +93,11 @@ public class CreateChatRoom extends AppCompatActivity implements View.OnClickLis
         return super.onCreateOptionsMenu(menu);
     }
 
+    /**
+     * Defines icon functionality, takes user to corresponding activity
+     * @param item
+     * @return
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
@@ -97,6 +118,10 @@ public class CreateChatRoom extends AppCompatActivity implements View.OnClickLis
         }
     }
 
+    /**
+     * Retrieves subject data from intent and adds it to object as appropriately
+     * @param savedInstanceState
+     */
     private void retrieveIntent(Bundle savedInstanceState) {
         if (savedInstanceState == null) {
             Bundle extras = getIntent().getExtras();
@@ -110,6 +135,11 @@ public class CreateChatRoom extends AppCompatActivity implements View.OnClickLis
         }
     }
 
+    /**
+     * Defines create and clear chat functionality, checks that subject does
+     * not already exist
+     * @param v
+     */
     @Override
     public void onClick(View v) {
 
@@ -134,6 +164,12 @@ public class CreateChatRoom extends AppCompatActivity implements View.OnClickLis
 
     }
 
+    /**
+     * Determines user pressing the back key takes them to the appropriate activity
+     * @param keyCode
+     * @param event
+     * @return
+     */
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if(keyCode == KeyEvent.KEYCODE_BACK) {
@@ -143,6 +179,11 @@ public class CreateChatRoom extends AppCompatActivity implements View.OnClickLis
         return super.onKeyDown(keyCode, event);
     }
 
+    /**
+     * Called by button click, checks that the subject hasn't already been used
+     * @param subject
+     * @return
+     */
     private boolean checkSubjects(String subject) {
 
         if(subject.equals("")) {
@@ -162,6 +203,11 @@ public class CreateChatRoom extends AppCompatActivity implements View.OnClickLis
         return true;
     }
 
+    /**
+     * Calls thread that adds chat room to server
+     * @param user
+     * @param details
+     */
     private void createChat(User user, String details[]) {
 
         new CreateChatAsyncTask(user, new PassMessageCallBack() {
@@ -177,6 +223,10 @@ public class CreateChatRoom extends AppCompatActivity implements View.OnClickLis
 
     }
 
+    /**
+     * Shows alert dialog based on user parameters
+     * @param s
+     */
     private void showMessage(String s) {
 
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
@@ -186,6 +236,9 @@ public class CreateChatRoom extends AppCompatActivity implements View.OnClickLis
 
     }
 
+    /**
+     * Takes user to home page
+     */
     private void goToMainActivity() {
         startActivity(new Intent(this, MainActivity.class));
     }
@@ -204,6 +257,11 @@ public class CreateChatRoom extends AppCompatActivity implements View.OnClickLis
             returnMessage = getString(R.string.chat_created);
         }
 
+        /**
+         * Adds user chat room to server, ensuring it has a unique id
+         * @param params
+         * @return
+         */
         @Override
         protected String doInBackground(Void... params) {
             XMPPTCPConnectionConfiguration config = XMPPTCPConnectionConfiguration.builder()
@@ -253,6 +311,7 @@ public class CreateChatRoom extends AppCompatActivity implements View.OnClickLis
             return returnMessage;
         }
 
+        //Passes success/failure return message to main class
         @Override
         protected void onPostExecute(String returnMessage) {
             super.onPostExecute(returnMessage);

@@ -17,7 +17,9 @@ public class LinkDatabase extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "links.db";
     private static final int DATABASE_VERSION = 1;
 
-    // Database creation sql statement
+    /**
+     * Database creation sql statement
+     */
     private static final String DATABASE_CREATE = "create table "
             + TABLE_LINKS + "(" + COLUMN_ID
             + " integer primary key autoincrement, " + COLUMN_LINK
@@ -29,16 +31,23 @@ public class LinkDatabase extends SQLiteOpenHelper {
     }
 
 
-
+    /**
+     * Creates the database
+     * @param db
+     */
     @Override
     public void onCreate(SQLiteDatabase db) {
-        //Creates the database (obviously)
         db.execSQL(DATABASE_CREATE);
     }
 
+    /**
+     * Upgrades database if a new version exists
+     * @param db
+     * @param oldVersion
+     * @param newVersion
+     */
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        //Upgrades database if a new version exists
 
         Log.w(LinkDatabase.class.getName(),
                 "Upgrading database from version " + oldVersion + " to "

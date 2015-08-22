@@ -15,7 +15,6 @@ public class UserLocalStore {
         userLocalDatabase = context.getSharedPreferences(SP_NAME, 0);
     }
 
-    //Could make the user immutable
     public void storeUserData(User user) {
         SharedPreferences.Editor spEditor = userLocalDatabase.edit();
         spEditor.putString("username", user.username);
@@ -23,6 +22,10 @@ public class UserLocalStore {
         spEditor.commit();
     }
 
+    /**
+     * Returns user details
+     * @return
+     */
     public User getLoggedInUser() {
         String username = userLocalDatabase.getString("username", "");
         String password = userLocalDatabase.getString("password", "");
@@ -43,6 +46,10 @@ public class UserLocalStore {
         spEditor.commit();
     }
 
+    /**
+     * Determines if user is logged in or not
+     * @return
+     */
     public boolean getUserLoggedIn() {
         if (userLocalDatabase.getBoolean("loggedIn", false) == true) {
             return true;

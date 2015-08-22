@@ -25,6 +25,10 @@ public class Register extends AppCompatActivity implements View.OnClickListener{
     EditText username_textbox_register, password_textbox_register;
     TextView clear_text_register;
 
+    /**
+     * Initializes buttons, layout, textboxes
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,6 +46,10 @@ public class Register extends AppCompatActivity implements View.OnClickListener{
 
     }
 
+    /**
+     * Initializes buttons to register if details have been provided
+     * @param v
+     */
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -68,6 +76,10 @@ public class Register extends AppCompatActivity implements View.OnClickListener{
         }
     }
 
+    /**
+     * Called if details exist, calls thread to register details with server
+     * @param user
+     */
     private void registerUser(User user) {
         new RegisterUserAsyncTask(user, new GetUserCallBack() {
             @Override
@@ -77,6 +89,10 @@ public class Register extends AppCompatActivity implements View.OnClickListener{
         }).execute();
     }
 
+    /**
+     * Shows alert dialog to user with defined message
+     * @param s
+     */
     private void showMessage(String s) {
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(Register.this);
         dialogBuilder.setMessage(s);
@@ -97,6 +113,11 @@ public class Register extends AppCompatActivity implements View.OnClickListener{
             password = user.getPassword();
         }
 
+        /**
+         * Registers user details with server
+         * @param params
+         * @return
+         */
         @Override
         protected String doInBackground(Void... params) {
             XMPPTCPConnectionConfiguration config = XMPPTCPConnectionConfiguration.builder()
@@ -123,6 +144,10 @@ public class Register extends AppCompatActivity implements View.OnClickListener{
             return returnMessage;
         }
 
+        /**
+         * Passes message back to activity determining success or failure
+         * @param returnMessage
+         */
         @Override
         protected void onPostExecute(String returnMessage) {
             userCallBack.done(returnMessage, user);

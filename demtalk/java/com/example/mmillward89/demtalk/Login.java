@@ -38,6 +38,10 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
     private TextView clear_text;
     private UserLocalStore userLocalStore;
 
+    /**
+     * Initializes buttons, layout, and userlocalstore
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,6 +62,11 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
         userLocalStore.setUserLoggedIn(false);
     }
 
+    /**
+     * Sets up buttons to call register activity or determine user and password input,
+     * authenticating information if available
+     * @param v
+     */
     @Override
     public void onClick(View v) {
         switch(v.getId()) {
@@ -83,6 +92,10 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
         }
     }
 
+    /**
+     * Calls thread to determine if user can login to system
+     * @param user
+     */
     private void authenticate(User user) {
         new LoginUserAsyncTask(user, new GetUserCallBack() {
             @Override
@@ -96,6 +109,10 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
         }).execute();
     }
 
+    /**
+     * Creates alert dialog to display message to user
+     * @param s
+     */
     private void showMessage(String s) {
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(Login.this);
         dialogBuilder.setMessage(s);
@@ -103,6 +120,10 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
         dialogBuilder.show();
     }
 
+    /**
+     * If valid, adds user information to userlocalstore
+     * @param returnedUser
+     */
     private void logUserIn(User returnedUser) {
         userLocalStore.storeUserData(returnedUser);
         userLocalStore.setUserLoggedIn(true);
@@ -110,6 +131,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
     }
+
 
     private class LoginUserAsyncTask extends AsyncTask<Void, Void, User> {
         private User user;
@@ -124,6 +146,11 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
             password = user.getPassword();
         }
 
+        /**
+         * Attempts to login to server with provided username and password
+         * @param params
+         * @return
+         */
         @Override
         protected User doInBackground(Void... params) {
 
@@ -153,6 +180,10 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
             return returnedUser;
         }
 
+        /**
+         * Provides message confirming success or failure
+         * @param returnedUser
+         */
         @Override
         protected void onPostExecute(User returnedUser) {
             userCallBack.done(returnMessage, returnedUser);
