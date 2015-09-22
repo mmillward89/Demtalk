@@ -16,7 +16,8 @@ public class LinkManager {
 
     private LinkDatabase linkDatabase;
     private SQLiteDatabase database;
-    private String[] allColumns = {LinkDatabase.COLUMN_ID, LinkDatabase.COLUMN_LINK};
+    private String[] allColumns = {LinkDatabase.COLUMN_ID, LinkDatabase.COLUMN_LINK,
+            LinkDatabase.COLUMN_NAME};
 
     public LinkManager(Context context) {
         linkDatabase = new LinkDatabase(context);
@@ -35,19 +36,13 @@ public class LinkManager {
      * @param link
      * @return
      */
-    public Link createLink(String link) {
+    public void createLink(String link, String name) {
         ContentValues values = new ContentValues();
         values.put(LinkDatabase.COLUMN_LINK, link);
+        values.put(LinkDatabase.COLUMN_NAME, name);
+
         long insertId = database.insert(LinkDatabase.TABLE_LINKS, null, values);
 
-        Cursor cursor = database.query(LinkDatabase.TABLE_LINKS, allColumns,
-                LinkDatabase.COLUMN_ID + " = " + insertId, null, null, null, null);
-
-        cursor.moveToFirst();
-        Link link1 = cursorToLink(cursor);
-        cursor.close();
-
-        return link1;
     }
 
     /**
@@ -56,7 +51,6 @@ public class LinkManager {
      */
     public void deleteLink(Link link) {
         long id = link.getId();
-        //prints out 'comment deleted with id: (here)'
         database.delete(LinkDatabase.TABLE_LINKS, LinkDatabase.COLUMN_ID + " = " + id, null);
     }
 
@@ -75,6 +69,7 @@ public class LinkManager {
             links.add(link);
             cursor.moveToNext();
         }
+
         cursor.close();
 
         return links;
@@ -90,6 +85,7 @@ public class LinkManager {
         Link link = new Link();
         link.setId(cursor.getLong(0));
         link.setLink(cursor.getString(1));
+        link.setName(cursor.getString(2));
 
         return link;
     }

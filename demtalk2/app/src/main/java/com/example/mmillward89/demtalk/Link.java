@@ -7,7 +7,7 @@ public class Link {
 
     private long id;
     private String hyperlink;
-    private String description;
+    private String name;
 
     public long getId() {
         return id;
@@ -25,11 +25,11 @@ public class Link {
         this.hyperlink = hyperlink;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public String getDescription() {
-        return description;
+    public String getName() {
+        return name;
     }
 }

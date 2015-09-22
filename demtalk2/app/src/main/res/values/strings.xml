@@ -12,7 +12,7 @@
     <string name="login_clear">Clear Text</string>
     <string name="blank_textboxes">Please add a username and password.</string>
     <string name="service_name">marks-macbook-pro.local</string>
-    <string name="host_name">10.44.171.28</string>
+    <string name="host_name">192.168.1.68</string>
     <string name="couldnt_login_message">Could not login, please ensure details are correct</string>
     <string name="user_details_not_provided">User details not provided</string>
 
@@ -77,6 +77,8 @@
     <string name="add_link"><u>Link Address (e.g. www.google.com)</u></string>
     <string name="add_name"><u>Link Name (e.g. Google)</u></string>
     <string name="add_link_button">Add Link</string>
+    <string name="clear_link_button">Remove a Link</string>
+    <string name="remove_link_confirmation">Enter link name to remove</string>
     <string name="couldnt_open">Could not access stored links</string>
 
     <color name="Azure">#336699</color>

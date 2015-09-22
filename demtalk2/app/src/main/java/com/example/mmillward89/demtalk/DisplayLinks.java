@@ -1,10 +1,12 @@
 package com.example.mmillward89.demtalk;
 
 import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.view.Gravity;
@@ -17,16 +19,21 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class DisplayLinks extends AppCompatActivity implements View.OnClickListener {
 
     private Button add_link_button;
+    private TextView clear_link_button;
     private EditText add_link_edittext, add_name_edittext;
     private LinkManager linkManager;
     private LinearLayout scroll_layout_links;
     private List<Link> links;
-    private String storedLink;
+    private String storedLink, removeLink;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,7 +44,10 @@ public class DisplayLinks extends AppCompatActivity implements View.OnClickListe
         add_link_edittext = (EditText)findViewById(R.id.add_link_edittext);
         add_name_edittext = (EditText)findViewById(R.id.add_name_edittext);
         add_link_button = (Button) findViewById(R.id.add_link_button);
+        clear_link_button = (TextView) findViewById(R.id.clear_link_button);
+
         add_link_button.setOnClickListener(this);
+        clear_link_button.setOnClickListener(this);
 
         links = new ArrayList<Link>();
         linkManager = new LinkManager(this);
@@ -103,9 +113,26 @@ public class DisplayLinks extends AppCompatActivity implements View.OnClickListe
                 addLink();
                 break;
 
+            case R.id.clear_link_button:
+                removeLinkDialog();
+                break;
         }
     }
 
+    /**
+     * Creates an HTML link reference to add to the scroll view
+     * @param userLink - hyperlink
+     * @param name - name for link
+     * @return - HTML link format
+     */
+    private String createStoredLink(String userLink, String name) {
+        String storedlink = "<a href='" + userLink + "'> " + name + " </a>";
+        return storedlink;
+    }
+
+    /**
+     * Takes user input, creates an HTML link, adds it to database and passes it to display
+     */
     private void addLink() {
 
         String userLink = add_link_edittext.getText().toString();
@@ -114,12 +141,15 @@ public class DisplayLinks extends AppCompatActivity implements View.OnClickListe
         if(userLink.equals("") || name.equals("")) {
             showMessage("Please add a valid address and name");
         } else{
-            storedLink = "<a href='" + userLink + "'> " + name + " </a>";
-            linkManager.createLink(storedLink);
+            storedLink = createStoredLink(userLink, name);
+            linkManager.createLink(storedLink, name);
             displayNewLink();
         }
     }
 
+    /**
+     * Creates textview of new link and adds it to scrollview
+     */
     private void displayNewLink() {
         runOnUiThread(new Runnable() {
             @Override
@@ -149,6 +179,9 @@ public class DisplayLinks extends AppCompatActivity implements View.OnClickListe
         ;
     }
 
+    /**
+     * Called as activity is opened, displays all links in database
+     */
     private void displayLinks() {
         runOnUiThread(new Runnable() {
             @Override
@@ -161,7 +194,6 @@ public class DisplayLinks extends AppCompatActivity implements View.OnClickListe
                 params.setMargins(15, 15, 15, 15);
 
                 for (Link l : links) {
-
                     String link = l.getLink();
                     TextView t = new TextView(DisplayLinks.this);
                     t.setLayoutParams(params);
@@ -182,6 +214,85 @@ public class DisplayLinks extends AppCompatActivity implements View.OnClickListe
                 }
             }
         });
+    }
+
+    /**
+     * Creates a dialog accepting user input of link to remove
+     */
+    private void removeLinkDialog() {
+
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+        dialogBuilder.setTitle(getString(R.string.clear_link_button));
+        dialogBuilder.setMessage(getString(R.string.remove_link_confirmation));
+        final EditText editText = new EditText(this);
+        dialogBuilder.setView(editText);
+
+        dialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int it) {
+                Editable e = editText.getText();
+                removeLink = e.toString();
+                removeLink();
+            }
+        });
+
+        dialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int it) {
+                dialog.cancel();
+            }
+        });
+
+        AlertDialog dialog = dialogBuilder.create();
+        dialog.show();
+    }
+
+    /**
+     * Finds link that matches user input, matches it to appropriate textview, and removes
+     * it from scrollview
+     */
+    private void removeLink() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                String storedLink = "";
+                Link l = null;
+                boolean foundLink = false;
+
+                //Look through links, when correct one is found that matches user input,
+                //delete it and create a 'stored link' i.e. it what it's displayed as
+                //on views
+                List<Link> links = linkManager.getAllLinks();
+                for(Link link : links) {
+                    String name = link.getName();
+                    if(name.equals(removeLink)) {
+                        storedLink = name;
+                        l = link;
+                    }
+                }
+
+                //Find the view with the matching link and remove it
+                //(might not work due to fromHTML method)
+                int childCount = scroll_layout_links.getChildCount();
+
+                for(int i = 0; i<childCount; i++) {
+                    View view = scroll_layout_links.getChildAt(i);
+                    TextView textView = (TextView) view;
+                    String viewString = textView.getText().toString().trim();
+
+                    if(viewString.equals(storedLink)) {
+                        foundLink = true;
+                        view.setVisibility(View.GONE);
+                        scroll_layout_links.removeView(view);
+                        linkManager.deleteLink(l);
+                    }
+
+                    if(foundLink == false) {
+                        showMessage("Link not found");
+                    }
+
+                }
+            }
+        });
+
     }
 
     private void showMessage(String s) {
