@@ -35,7 +35,8 @@
             android:text="@string/add_message_textview"
             android:textColor="@color/White"
             android:textStyle="bold"
-            android:layout_marginTop="5dp"/>
+            android:layout_marginTop="5dp"
+            android:textIsSelectable="true"/>
 
         <TextView
             android:id="@+id/display_info_text"
@@ -43,7 +44,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/White"
-            android:layout_marginBottom="5dp"/>
+            android:layout_marginBottom="5dp"
+            android:textIsSelectable="true"/>
 
         <EditText
             android:id="@+id/add_message_textbox"
@@ -64,7 +66,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:paddingTop="5dp"
-            android:textColor="@color/White"/>
+            android:textColor="@color/White"
+            android:textIsSelectable="true"/>
 
     </LinearLayout>
 

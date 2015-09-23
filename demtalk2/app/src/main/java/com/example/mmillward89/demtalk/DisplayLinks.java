@@ -146,6 +146,7 @@ public class DisplayLinks extends AppCompatActivity implements View.OnClickListe
         }
 
         //Check for already entered name
+
         boolean b = names.add(name);
 
         if(b == false) {

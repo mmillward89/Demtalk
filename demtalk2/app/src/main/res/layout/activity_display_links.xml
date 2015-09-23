@@ -19,14 +19,16 @@
             android:textColor="@color/White"
             android:textStyle="bold"
             android:layout_marginTop="10dp"
-            android:layout_marginBottom="5dp"/>
+            android:layout_marginBottom="5dp"
+            android:textIsSelectable="true"/>
 
         <TextView
             android:id="@+id/display_links_intro"
             android:text="@string/display_links_intro"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/White"/>
+            android:textColor="@color/White"
+            android:textIsSelectable="true"/>
 
         <TextView
             android:textSize="14sp"
@@ -34,7 +36,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
             android:text="@string/add_link"
-            android:textColor="@color/White"/>
+            android:textColor="@color/White"
+            android:textIsSelectable="true"/>
 
         <EditText
             android:id="@+id/add_link_edittext"
@@ -47,7 +50,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
             android:text="@string/add_name"
-            android:textColor="@color/White"/>
+            android:textColor="@color/White"
+            android:textIsSelectable="true"/>
 
         <EditText
             android:id="@+id/add_name_edittext"
@@ -68,7 +72,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:paddingTop="10dp"
-            android:textColor="@color/White"/>
+            android:textColor="@color/White"
+            android:textIsSelectable="true"/>
 
     </LinearLayout>
 

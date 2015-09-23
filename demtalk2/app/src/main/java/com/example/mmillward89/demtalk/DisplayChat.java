@@ -271,6 +271,7 @@ public class DisplayChat extends AppCompatActivity implements MessageListener, V
                     textView.setText(messageBody);
                     textView.setBackgroundResource(R.drawable.speech_bubble_reverse);
                 }
+                textView.setTextIsSelectable(true);
                 textView.setTextAppearance(DisplayChat.this, R.style.MessageFont);
                 textView.setTextColor(Color.parseColor("#FFFFFF"));
                 textView.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);

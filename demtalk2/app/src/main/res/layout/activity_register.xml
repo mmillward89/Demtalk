@@ -10,7 +10,8 @@
         android:text="@string/register_username"
         android:textStyle="bold"
         android:textColor="@color/White"
-        android:layout_marginTop="10dp"/>
+        android:layout_marginTop="10dp"
+        android:textIsSelectable="true"/>
 
     <EditText
         android:id="@+id/username_textbox_register"
@@ -23,7 +24,8 @@
         android:layout_height="wrap_content"
         android:text="@string/register_password"
         android:textStyle="bold"
-        android:textColor="@color/White"/>
+        android:textColor="@color/White"
+        android:textIsSelectable="true"/>
 
     <EditText
         android:id="@+id/password_textbox_register"
@@ -58,6 +60,6 @@
         android:layout_gravity="center_horizontal"
         android:paddingTop="10dp"
         android:textColor="@color/White"
-        />
+        android:textIsSelectable="true" />
 
 </LinearLayout>
