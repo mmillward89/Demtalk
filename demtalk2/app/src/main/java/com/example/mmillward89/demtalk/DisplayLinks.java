@@ -20,6 +20,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +34,7 @@ public class DisplayLinks extends AppCompatActivity implements View.OnClickListe
     private LinkManager linkManager;
     private LinearLayout scroll_layout_links;
     private List<Link> links;
+    private HashSet<String> names;
     private String storedLink, removeLink;
 
     @Override
@@ -49,7 +51,8 @@ public class DisplayLinks extends AppCompatActivity implements View.OnClickListe
         add_link_button.setOnClickListener(this);
         clear_link_button.setOnClickListener(this);
 
-        links = new ArrayList<Link>();
+        links = new ArrayList<>();
+        names = new HashSet<>();
         linkManager = new LinkManager(this);
 
         try {
@@ -126,7 +129,7 @@ public class DisplayLinks extends AppCompatActivity implements View.OnClickListe
      * @return - HTML link format
      */
     private String createStoredLink(String userLink, String name) {
-        String storedlink = "<a href='" + userLink + "'> " + name + " </a>";
+        String storedlink = "<a href='" + userLink + "'>" + name + "</a>";
         return storedlink;
     }
 
@@ -139,12 +142,20 @@ public class DisplayLinks extends AppCompatActivity implements View.OnClickListe
         String name = add_name_edittext.getText().toString();
 
         if(userLink.equals("") || name.equals("")) {
-            showMessage("Please add a valid address and name");
-        } else{
+            showMessage(getString(R.string.blank_link_message));
+        }
+
+        //Check for already entered name
+        boolean b = names.add(name);
+
+        if(b == false) {
+            showMessage(getString(R.string.link_name_taken));
+        } else {
             storedLink = createStoredLink(userLink, name);
             linkManager.createLink(storedLink, name);
             displayNewLink();
         }
+
     }
 
     /**
@@ -231,7 +242,12 @@ public class DisplayLinks extends AppCompatActivity implements View.OnClickListe
             public void onClick(DialogInterface dialog, int it) {
                 Editable e = editText.getText();
                 removeLink = e.toString();
-                removeLink();
+
+                if(removeLink.equals("")) {
+                    showMessage(getString(R.string.please_enter_link));
+                } else {
+                    removeLink();
+                }
             }
         });
 
@@ -273,6 +289,10 @@ public class DisplayLinks extends AppCompatActivity implements View.OnClickListe
                 //(might not work due to fromHTML method)
                 int childCount = scroll_layout_links.getChildCount();
 
+                if (childCount  == 0) {
+                    showMessage(getString(R.string.link_not_found));
+                }
+
                 for(int i = 0; i<childCount; i++) {
                     View view = scroll_layout_links.getChildAt(i);
                     TextView textView = (TextView) view;
@@ -286,7 +306,7 @@ public class DisplayLinks extends AppCompatActivity implements View.OnClickListe
                     }
 
                     if(foundLink == false) {
-                        showMessage("Link not found");
+                        showMessage(getString(R.string.link_not_found));
                     }
 
                 }

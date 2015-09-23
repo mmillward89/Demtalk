@@ -74,11 +74,16 @@
     <string name="title_activity_display_links">DisplayLinks</string>
     <string name="links_title">Links and Useful Information</string>
     <string name="display_links_intro">Save and display links for reference.</string>
-    <string name="add_link"><u>Link Address (e.g. www.google.com)</u></string>
+    <string name="add_link"><u>Link Address (please enter FULL address to access directly)</u></string>
     <string name="add_name"><u>Link Name (e.g. Google)</u></string>
     <string name="add_link_button">Add Link</string>
     <string name="clear_link_button">Remove a Link</string>
     <string name="remove_link_confirmation">Enter link name to remove</string>
+    <string name="please_enter_link">No name found, please enter a link name</string>
+    <string name="blank_link_message">Please add a valid address and name</string>
+    <string name="link_name_taken">This name has already been used,
+        please enter a unique name</string>
+    <string name="link_not_found">Link not found</string>
     <string name="couldnt_open">Could not access stored links</string>
 
     <color name="Azure">#336699</color>
