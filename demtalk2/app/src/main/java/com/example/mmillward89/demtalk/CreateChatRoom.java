@@ -141,7 +141,7 @@ public class CreateChatRoom extends AppCompatActivity implements View.OnClickLis
                 String subject = subject_textbox.getText().toString();
 
                 if(checkSubjects(subject)) {
-                    String message = message_textbox.getText().toString();
+                    String message = user.getUsername() + ": \"" + message_textbox.getText().toString() + "\"";
                     String[] details = {subject, message};
                     createChat(user, details);
                 }

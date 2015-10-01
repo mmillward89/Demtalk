@@ -47,7 +47,7 @@
     <string name="create_chat_to_main">Back to Main</string>
     <string name="no_subjects">Please enter a valid subject</string>
     <string name="subject_exists">Subject already exists, please try another.
-        Check the home screen if you are unsure!</string>
+        Please check the home screen if you are unsure.</string>
     <string name="no_chat_room">Could not create chat, please try again</string>
     <string name="chat_created">Chat created</string>
     <string name="couldnt_create_chat">Could not create chat, please try again</string>
@@ -74,8 +74,8 @@
     <string name="title_activity_display_links">DisplayLinks</string>
     <string name="links_title">Links and Useful Information</string>
     <string name="display_links_intro">Save and display links for reference.</string>
-    <string name="add_link"><u>Link Address (please enter FULL address to access directly)</u></string>
-    <string name="add_name"><u>Link Name (e.g. Google)</u></string>
+    <string name="add_link"><u>Link Address (please enter full address to create direct link)</u></string>
+    <string name="add_name"><u>Link Name (e.g. \'Google\', \'Article About X\')</u></string>
     <string name="add_link_button">Add Link</string>
     <string name="clear_link_button">Remove a Link</string>
     <string name="remove_link_confirmation">Enter link name to remove</string>

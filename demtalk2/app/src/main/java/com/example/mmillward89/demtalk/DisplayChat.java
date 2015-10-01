@@ -29,6 +29,8 @@ import org.jivesoftware.smackx.muc.DiscussionHistory;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.jivesoftware.smackx.muc.MultiUserChatManager;
 
+import java.util.Iterator;
+
 public class DisplayChat extends AppCompatActivity implements MessageListener, View.OnClickListener{
     private EditText add_message_textbox;
     private Button add_message_button;
@@ -219,15 +221,18 @@ public class DisplayChat extends AppCompatActivity implements MessageListener, V
     private void addHistory() {
 
         try {
-            for (int i = 0; i < 5; i++) {
+
+            boolean moreMessages = true;
+            while (moreMessages) {
                 Message message = chatRoom.nextMessage();
 
-                if(message != null) {
+                if (message != null) {
                     processMessage(message);
                 } else {
-                    i = 5;
+                    moreMessages = false;
                 }
             }
+
         } catch (Exception e) {
             showMessage(getString(R.string.couldnt_display));
         }
@@ -368,8 +373,6 @@ public class DisplayChat extends AppCompatActivity implements MessageListener, V
                 multiUserChat = manager.getMultiUserChat(info[0]);
 
                 DiscussionHistory history = new DiscussionHistory();
-                //need to get all history here
-                history.setMaxStanzas(5);
                 multiUserChat.join(username, "", history, connection.getPacketReplyTimeout());
 
                 multiUserChat.addUserStatusListener(new DefaultUserStatusListener() {

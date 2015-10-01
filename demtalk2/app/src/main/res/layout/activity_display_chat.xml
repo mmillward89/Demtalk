@@ -20,13 +20,18 @@
         </LinearLayout>
         
     </ScrollView>
-    
-    <LinearLayout
-        android:orientation="vertical"
+
+    <ScrollView
+        android:id="@+id/displayt_chat_lower_scrollbox"
         android:layout_width="fill_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:layout_marginTop="5dp">
+
+        <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
 
         <TextView style="@style/EditTextFont"
             android:id="@+id/add_message_textview"
@@ -69,7 +74,9 @@
             android:textColor="@color/White"
             android:textIsSelectable="true"/>
 
-    </LinearLayout>
+        </LinearLayout>
+
+    </ScrollView>
 
 </LinearLayout>
 
