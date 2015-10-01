@@ -11,8 +11,8 @@
     <string name="login_register_button">Register New User</string>
     <string name="login_clear">Clear Text</string>
     <string name="blank_textboxes">Please add a username and password.</string>
-    <string name="service_name">marks-macbook-pro.local</string>
-    <string name="host_name">192.168.1.68</string>
+    <string name="service_name">mark-pc</string>
+    <string name="host_name">192.168.1.108</string>
     <string name="couldnt_login_message">Could not login, please ensure details are correct</string>
     <string name="user_details_not_provided">User details not provided</string>
 

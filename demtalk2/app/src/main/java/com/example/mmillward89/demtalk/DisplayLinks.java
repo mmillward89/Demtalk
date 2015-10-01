@@ -278,9 +278,9 @@ public class DisplayLinks extends AppCompatActivity implements View.OnClickListe
                 //delete it and create a 'stored link' i.e. it what it's displayed as
                 //on views
                 List<Link> links = linkManager.getAllLinks();
-                for(Link link : links) {
+                for (Link link : links) {
                     String name = link.getName();
-                    if(name.equals(removeLink)) {
+                    if (name.equals(removeLink)) {
                         storedLink = name;
                         l = link;
                     }
@@ -290,23 +290,23 @@ public class DisplayLinks extends AppCompatActivity implements View.OnClickListe
                 //(might not work due to fromHTML method)
                 int childCount = scroll_layout_links.getChildCount();
 
-                if (childCount  == 0) {
+                if (childCount == 0) {
                     showMessage(getString(R.string.link_not_found));
                 }
 
-                for(int i = 0; i<childCount; i++) {
+                for (int i = 0; i < childCount; i++) {
                     View view = scroll_layout_links.getChildAt(i);
                     TextView textView = (TextView) view;
                     String viewString = textView.getText().toString().trim();
 
-                    if(viewString.equals(storedLink)) {
+                    if (viewString.equals(storedLink)) {
                         foundLink = true;
                         view.setVisibility(View.GONE);
                         scroll_layout_links.removeView(view);
                         linkManager.deleteLink(l);
                     }
 
-                    if(foundLink == false) {
+                    if (foundLink == false) {
                         showMessage(getString(R.string.link_not_found));
                     }
 
@@ -314,6 +314,18 @@ public class DisplayLinks extends AppCompatActivity implements View.OnClickListe
             }
         });
 
+        removeLinkFromSet();
+    }
+
+    /**
+     * Removes name from set so that user can re-add if they want
+     */
+    private void removeLinkFromSet() {
+        for(String name: names) {
+            if(name.equals(removeLink)) {
+                names.remove(name);
+            }
+        }
     }
 
     private void showMessage(String s) {
