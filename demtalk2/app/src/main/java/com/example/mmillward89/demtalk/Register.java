@@ -140,7 +140,7 @@ public class Register extends AppCompatActivity implements View.OnClickListener{
                     .build();
             try {
                 XMPPTCPConnection connection = new XMPPTCPConnection(config);
-                connection.setPacketReplyTimeout(10000);
+                connection.setPacketReplyTimeout(20000);
                 connection.connect();
 
                 AccountManager manager = AccountManager.getInstance(connection);

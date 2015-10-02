@@ -181,7 +181,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
 
             try {
                 XMPPTCPConnection connection = new XMPPTCPConnection(config);
-                connection.setPacketReplyTimeout(10000);
+                connection.setPacketReplyTimeout(20000);
                 connection.connect();
                 connection.login(username, password);
 

@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private User user;
     private ProgressDialog progressDialog;
     private List<HostedRoom> list;
-    private HashMap<String, String> map;
+    private HashMap<String, String> jidMap;
     private String[] Subjects;
     private LinearLayout linearLayout;
 
@@ -148,10 +148,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             default:
                 Button b = (Button) v;
                 String subject = b.getText().toString();
-                String jid = map.get(subject);
+                String jid = jidMap.get(subject);
+                String[] info = {jid, subject};
 
                 Intent intent1 = new Intent(this, DisplayChat.class);
-                intent1.putExtra("JID", jid);
+                intent1.putExtra("JIDandSubject", info);
                 startActivity(intent1);
                 break;
         }
@@ -163,7 +164,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onStop() {
         super.onStop();
-        this.map = null;
+        this.jidMap = null;
         //remove map as needs to refresh with newly created chat rooms
         //don't want duplicate key/value pairs
     }
@@ -198,7 +199,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * @param map
      */
     private void addMap(HashMap<String, String> map) {
-        this.map = map;
+        jidMap = map;
     }
 
     /**
@@ -244,11 +245,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      */
     private void getAllSubjects() {
 
-        int size = map.keySet().size();
+        int size = jidMap.keySet().size();
         Subjects = new String[size];
 
         int i = 0;
-        for(String subject : map.keySet()) {
+        for(String subject : jidMap.keySet()) {
             Subjects[i] = subject;
             i++;
         }
@@ -317,7 +318,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             try {
                 connection = new XMPPTCPConnection(config);
-                connection.setPacketReplyTimeout(10000);
+                connection.setPacketReplyTimeout(20000);
                 connection.connect();
                 connection.login(username, password);
 

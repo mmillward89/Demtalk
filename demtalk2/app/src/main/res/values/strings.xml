@@ -67,7 +67,7 @@
     <string name="message_received">Message received!</string>
     <string name="chat_found">Chat found</string>
     <string name="please_add_message">Please add message</string>
-    <string name="no_messages_added">Messages will appear below. If none appear feel free to add your own
+    <string name="message_intro">Messages will appear below. If none appear feel free to add your own
         and get the conversation started.</string>
     <string name="no_chat_room_provided">Chat room not provided</string>
 

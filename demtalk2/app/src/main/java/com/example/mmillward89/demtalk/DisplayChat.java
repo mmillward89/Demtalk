@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -40,7 +41,7 @@ public class DisplayChat extends AppCompatActivity implements MessageListener, V
     private User user;
     private MultiUserChat chatRoom;
     private LinearLayout scrolllayout;
-    private String messageBody;
+    private String messageBody, blankMessageTemplate, roomSubject;
     private ProgressDialog progressDialog;
 
     /**
@@ -68,6 +69,8 @@ public class DisplayChat extends AppCompatActivity implements MessageListener, V
 
         userLocalStore = new UserLocalStore(this);
         user = userLocalStore.getLoggedInUser();
+        //checked if the user has not entered a message when creating the chat
+        blankMessageTemplate = user.getUsername() + ": \"" + "" + "\"";
 
         Info = new String[2];
         retrieveIntent(savedInstanceState);
@@ -125,12 +128,16 @@ public class DisplayChat extends AppCompatActivity implements MessageListener, V
         if (savedInstanceState == null) {
             Bundle extras = getIntent().getExtras();
             if (extras == null) {
-                Info[0] = null;
+                Info = null;
             } else {
-                Info[0] = extras.getString("JID");
+                Info = extras.getStringArray("JIDandSubject");
+
+                //Won't produce nullpointerexception as user cannot create chat room without subject
+                //Creates title bar for chat room displaying room subject
+                roomSubject = "Room Subject: \"" + Info[1] + "\"";
             }
         } else {
-            Info[0] = (String) savedInstanceState.getSerializable("JID");
+            Info = (String[]) savedInstanceState.getSerializable("JIDandSubject");
         }
     }
 
@@ -166,6 +173,7 @@ public class DisplayChat extends AppCompatActivity implements MessageListener, V
                             string + "\"";
                     try {
                         chatRoom.sendMessage(Info[1]);
+                        add_message_textbox.setText("");
                     } catch (Exception e) {
                         String s = e.getMessage();
 
@@ -269,10 +277,14 @@ public class DisplayChat extends AppCompatActivity implements MessageListener, V
                                 LinearLayout.LayoutParams.WRAP_CONTENT);
                 params.setMargins(15, 15, 15, 15);
                 textView.setLayoutParams(params);
-                textView.setText(getString(R.string.no_messages_added));
-                if (messageBody == null) {
-                    textView.setText(getString(R.string.no_messages_added));
-                } else {
+                if(messageBody == null) {
+                    //room subject
+                    textView.setPaintFlags(textView.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+                    textView.setText(roomSubject);
+                } else if(messageBody.equals(blankMessageTemplate)) {
+                    textView.setText(getString(R.string.message_intro));
+                }
+                else {
                     textView.setText(messageBody);
                     textView.setBackgroundResource(R.drawable.speech_bubble_reverse);
                 }
@@ -365,7 +377,7 @@ public class DisplayChat extends AppCompatActivity implements MessageListener, V
             MultiUserChat multiUserChat = null;
             try {
                 connection = new XMPPTCPConnection(config);
-                connection.setPacketReplyTimeout(10000);
+                connection.setPacketReplyTimeout(20000);
                 connection.connect();
                 connection.login(username, password);
 

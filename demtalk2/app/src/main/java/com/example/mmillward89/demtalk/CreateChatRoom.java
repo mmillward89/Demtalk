@@ -286,7 +286,7 @@ public class CreateChatRoom extends AppCompatActivity implements View.OnClickLis
             try {
 
                 connection = new XMPPTCPConnection(config);
-                connection.setPacketReplyTimeout(10000);
+                connection.setPacketReplyTimeout(20000);
                 connection.connect();
                 connection.login(username, password);
 
