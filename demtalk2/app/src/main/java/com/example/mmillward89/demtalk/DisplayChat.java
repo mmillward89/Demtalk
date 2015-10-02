@@ -232,9 +232,10 @@ public class DisplayChat extends AppCompatActivity implements MessageListener, V
 
             boolean moreMessages = true;
             while (moreMessages) {
-                Message message = chatRoom.nextMessage();
+                //Use this instead of nextMessage(), doesn't block
+                Message message = chatRoom.pollMessage();
 
-                if (message != null) {
+                if(message != null) {
                     processMessage(message);
                 } else {
                     moreMessages = false;
@@ -270,7 +271,6 @@ public class DisplayChat extends AppCompatActivity implements MessageListener, V
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-
                 TextView textView = new TextView(DisplayChat.this);
                 LinearLayout.LayoutParams params = new LinearLayout.LayoutParams
                         (LinearLayout.LayoutParams.MATCH_PARENT,
@@ -283,8 +283,7 @@ public class DisplayChat extends AppCompatActivity implements MessageListener, V
                     textView.setText(roomSubject);
                 } else if(messageBody.equals(blankMessageTemplate)) {
                     textView.setText(getString(R.string.message_intro));
-                }
-                else {
+                } else {
                     textView.setText(messageBody);
                     textView.setBackgroundResource(R.drawable.speech_bubble_reverse);
                 }
@@ -298,9 +297,7 @@ public class DisplayChat extends AppCompatActivity implements MessageListener, V
                 } catch (Exception e) {
                     showMessage(getString(R.string.couldnt_send));
                 }
-
                 showToast();
-
             }
         });
 
