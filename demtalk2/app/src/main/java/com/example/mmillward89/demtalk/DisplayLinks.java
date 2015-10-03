@@ -139,23 +139,31 @@ public class DisplayLinks extends AppCompatActivity implements View.OnClickListe
     private void addLink() {
 
         String userLink = add_link_edittext.getText().toString();
-        String name = add_name_edittext.getText().toString();
 
-        if(userLink.equals("") || name.equals("")) {
-            showMessage(getString(R.string.blank_link_message));
-        }
+        String http = userLink.substring(0, 7);
+        if(http.equals("http://")) {
+            String name = add_name_edittext.getText().toString();
 
-        //Check for already entered name
+            if(userLink.equals("") || name.equals("")) {
+                showMessage(getString(R.string.blank_link_message));
+            }
 
-        boolean b = names.add(name);
+            //Check for already entered name
 
-        if(b == false) {
-            showMessage(getString(R.string.link_name_taken));
+                boolean b = names.add(name);
+
+                if(b == false) {
+                    showMessage(getString(R.string.link_name_taken));
+                } else {
+                    storedLink = createStoredLink(userLink, name);
+                    linkManager.createLink(storedLink, name);
+                    displayNewLink();
+                }
         } else {
-            storedLink = createStoredLink(userLink, name);
-            linkManager.createLink(storedLink, name);
-            displayNewLink();
+            showMessage(getString(R.string.incorrect_link_format));
         }
+
+
 
     }
 
@@ -163,18 +171,17 @@ public class DisplayLinks extends AppCompatActivity implements View.OnClickListe
      * Creates textview of new link and adds it to scrollview
      */
     private void displayNewLink() {
+
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 TextView t = new TextView(DisplayLinks.this);
-
                 LinearLayout.LayoutParams params = new LinearLayout.LayoutParams
-                        (LinearLayout.LayoutParams.MATCH_PARENT,
-                                LinearLayout.LayoutParams.WRAP_CONTENT);
+                         (LinearLayout.LayoutParams.MATCH_PARENT,
+                                 LinearLayout.LayoutParams.WRAP_CONTENT);
                 params.setMargins(15, 15, 15, 15);
                 t.setLayoutParams(params);
                 t.setText(Html.fromHtml(storedLink));
-
                 t.setTextAppearance(DisplayLinks.this, R.style.MessageFont);
                 t.setTextColor(Color.parseColor("#FFFFFF"));
                 t.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
@@ -188,42 +195,45 @@ public class DisplayLinks extends AppCompatActivity implements View.OnClickListe
                 }
             }
         });
-        ;
     }
 
     /**
      * Called as activity is opened, displays all links in database
      */
     private void displayLinks() {
+
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 links = linkManager.getAllLinks();
-
                 LinearLayout.LayoutParams params = new LinearLayout.LayoutParams
                         (LinearLayout.LayoutParams.MATCH_PARENT,
                                 LinearLayout.LayoutParams.WRAP_CONTENT);
                 params.setMargins(15, 15, 15, 15);
 
-                for (Link l : links) {
-                    String link = l.getLink();
-                    TextView t = new TextView(DisplayLinks.this);
-                    t.setLayoutParams(params);
-                    t.setText(Html.fromHtml(link));
+                 for (Link l : links) {
+                     //Ensures duplicates can't be added
+                     String name = l.getName();
+                     names.add(name);
 
-                    t.setTextAppearance(DisplayLinks.this, R.style.MessageFont);
-                    t.setTextColor(Color.parseColor("#FFFFFF"));
-                    t.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
-                    t.setClickable(true);
-                    t.setMovementMethod(LinkMovementMethod.getInstance());
+                     String link = l.getLink();
+                     TextView t = new TextView(DisplayLinks.this);
+                     t.setLayoutParams(params);
+                     t.setText(Html.fromHtml(link));
 
-                    try {
-                        scroll_layout_links.addView(t);
-                    } catch (Exception e) {
-                        showMessage(getString(R.string.couldnt_display));
-                    }
+                     t.setTextAppearance(DisplayLinks.this, R.style.MessageFont);
+                     t.setTextColor(Color.parseColor("#FFFFFF"));
+                     t.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
+                     t.setClickable(true);
+                     t.setMovementMethod(LinkMovementMethod.getInstance());
 
-                }
+                     try {
+                         scroll_layout_links.addView(t);
+                     } catch (Exception e) {
+                         showMessage(getString(R.string.couldnt_display));
+                     }
+
+                 }
             }
         });
     }
@@ -267,6 +277,7 @@ public class DisplayLinks extends AppCompatActivity implements View.OnClickListe
      * it from scrollview
      */
     private void removeLink() {
+
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -305,26 +316,31 @@ public class DisplayLinks extends AppCompatActivity implements View.OnClickListe
                         scroll_layout_links.removeView(view);
                         linkManager.deleteLink(l);
                     }
-
                     if (foundLink == false) {
                         showMessage(getString(R.string.link_not_found));
                     }
-
                 }
             }
         });
 
+        //Called so the user can re-add the link without the set thinking
+        //they already have it
         removeLinkFromSet();
     }
+
 
     /**
      * Removes name from set so that user can re-add if they want
      */
     private void removeLinkFromSet() {
-        for(String name: names) {
-            if(name.equals(removeLink)) {
-                names.remove(name);
+        try {
+            for (String name : names) {
+                if (name.equals(removeLink)) {
+                    names.remove(name);
+                }
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

@@ -28,7 +28,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp"/>
+        android:layout_marginBottom="10dp"
+        android:maxLength="140"/>
 
     <TextView style="@style/EditTextFont"
         android:layout_width="wrap_content"
@@ -54,7 +55,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp"/>
+        android:layout_marginBottom="10dp"
+        android:maxLength="350"/>
 
     <Button style="@style/NiceButton"
         android:id="@+id/create_chat_button"

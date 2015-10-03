@@ -174,6 +174,7 @@ public class DisplayChat extends AppCompatActivity implements MessageListener, V
                     try {
                         chatRoom.sendMessage(Info[1]);
                         add_message_textbox.setText("");
+                        showToast();
                     } catch (Exception e) {
                         String s = e.getMessage();
 
@@ -249,17 +250,6 @@ public class DisplayChat extends AppCompatActivity implements MessageListener, V
     }
 
     /**
-     * Adds a text view if no current messages exist within the system
-     */
-    private void showNoMessages() {
-        TextView textView = new TextView(this);
-        textView.setText(getString(R.string.no_messages));
-        textView.setGravity(Gravity.CENTER_HORIZONTAL);
-        textView.setTextColor(Color.parseColor("#FFFFFF"));
-        scrolllayout.addView(textView);
-    }
-
-    /**
      * Takes the message content and adds a representation to the layout
      * @param message
      */
@@ -277,10 +267,12 @@ public class DisplayChat extends AppCompatActivity implements MessageListener, V
                                 LinearLayout.LayoutParams.WRAP_CONTENT);
                 params.setMargins(15, 15, 15, 15);
                 textView.setLayoutParams(params);
+                textView.setTextAppearance(DisplayChat.this, R.style.MessageFont);
                 if(messageBody == null) {
                     //room subject
                     textView.setPaintFlags(textView.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
                     textView.setText(roomSubject);
+                    textView.setTextSize(20);
                 } else if(messageBody.equals(blankMessageTemplate)) {
                     textView.setText(getString(R.string.message_intro));
                 } else {
@@ -288,7 +280,6 @@ public class DisplayChat extends AppCompatActivity implements MessageListener, V
                     textView.setBackgroundResource(R.drawable.speech_bubble_reverse);
                 }
                 textView.setTextIsSelectable(true);
-                textView.setTextAppearance(DisplayChat.this, R.style.MessageFont);
                 textView.setTextColor(Color.parseColor("#FFFFFF"));
                 textView.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
 
@@ -297,7 +288,7 @@ public class DisplayChat extends AppCompatActivity implements MessageListener, V
                 } catch (Exception e) {
                     showMessage(getString(R.string.couldnt_send));
                 }
-                showToast();
+
             }
         });
 

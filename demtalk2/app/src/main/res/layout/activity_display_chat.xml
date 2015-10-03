@@ -55,7 +55,8 @@
         <EditText
             android:id="@+id/add_message_textbox"
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:maxLength="350"/>
 
         <Button style="@style/NiceButton"
             android:id="@+id/add_message_button"

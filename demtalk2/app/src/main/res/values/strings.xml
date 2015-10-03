@@ -29,7 +29,7 @@
     <string name="rooms_textview">Available Chat Rooms</string>
     <string name="main_info_text">Scroll and select to view chat rooms.
         Hit the speech bubble to create your own, or another icon to navigate between pages.</string>
-    <string name="no_chat_rooms">No chat rooms created yet. Select \'Create Chat Room\' to create your own!</string>
+    <string name="no_chat_rooms">No chat rooms created yet. Click the speech bubble to create your own!</string>
     <string name="main_post_topic">Create Chat Room</string>
     <string name="subject_hint">Displayed for users to select on the home screen</string>
     <string name="message_hint">First message displayed when users enter room</string>
@@ -74,7 +74,7 @@
     <string name="title_activity_display_links">DisplayLinks</string>
     <string name="links_title">Links and Useful Information</string>
     <string name="display_links_intro">Save and display links for reference.</string>
-    <string name="add_link"><u>Link Address (please enter full address to create direct link)</u></string>
+    <string name="add_link"><u>Link Address (must enter full address,including \'http://\' to create direct link)</u></string>
     <string name="add_name"><u>Link Name (e.g. \'Google\', \'Article About X\')</u></string>
     <string name="add_link_button">Add Link</string>
     <string name="clear_link_button">Remove a Link</string>
@@ -85,6 +85,7 @@
         please enter a unique name</string>
     <string name="link_not_found">Link not found</string>
     <string name="couldnt_open">Could not access stored links</string>
+    <string name="incorrect_link_format">Incorrect link format, link could not be created</string>
 
     <color name="Azure">#336699</color>
     <color name="White">#FFFFFF</color>
