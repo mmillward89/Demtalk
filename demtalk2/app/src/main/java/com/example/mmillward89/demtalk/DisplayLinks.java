@@ -195,6 +195,9 @@ public class DisplayLinks extends AppCompatActivity implements View.OnClickListe
                 }
             }
         });
+
+        add_link_edittext.setText("");
+        add_name_edittext.setText("");
     }
 
     /**
@@ -316,9 +319,10 @@ public class DisplayLinks extends AppCompatActivity implements View.OnClickListe
                         scroll_layout_links.removeView(view);
                         linkManager.deleteLink(l);
                     }
-                    if (foundLink == false) {
-                        showMessage(getString(R.string.link_not_found));
-                    }
+                }
+
+                if (foundLink == false) {
+                    showMessage(getString(R.string.link_not_found));
                 }
             }
         });

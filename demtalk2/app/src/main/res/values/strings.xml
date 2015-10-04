@@ -95,6 +95,7 @@
     <string name="main_menu_icon">Display All Rooms</string>
     <string name="display_links_icon">Display Links</string>
     <string name="log_out_icon">Log Out</string>
+    <string name="title_activity_test">TestActivity</string>
 
 
 </resources>

@@ -39,7 +39,7 @@ import java.util.Set;
 
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
-    private Button logout_button;
+    private Button logout_button, test;
     private UserLocalStore userLocalStore;
     private User user;
     private ProgressDialog progressDialog;
@@ -70,6 +70,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         userLocalStore = new UserLocalStore(this);
         user = userLocalStore.getLoggedInUser();
 
+        test = (Button) findViewById(R.id.test);
+        test.setOnClickListener(this);
     }
 
     /**
@@ -143,6 +145,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 userLocalStore.clearUserData();
                 userLocalStore.setUserLoggedIn(false);
                 startActivity(new Intent(this, Login.class));
+                break;
+
+            case R.id.test:
+                startActivity(new Intent(this, Test.class));
                 break;
 
             default:
