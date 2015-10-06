@@ -13,12 +13,16 @@ import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 
+import java.security.cert.TrustAnchor;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -29,46 +33,66 @@ import java.util.Set;
 public class DisplayLinks extends AppCompatActivity implements View.OnClickListener {
 
     private Button add_link_button;
-    private TextView clear_link_button;
+    private TextView clear_link_button, show_links_button;
     private EditText add_link_edittext, add_name_edittext;
     private LinkManager linkManager;
-    private LinearLayout scroll_layout_links;
     private List<Link> links;
     private HashSet<String> names;
     private String storedLink, removeLink;
+    private ListView listView;
+    private String[] linksForListview;
+    private ArrayAdapter<String> adapter;
+    private ArrayList<String> linkArrayList;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display_links);
 
-        scroll_layout_links = (LinearLayout) findViewById(R.id.scroll_layout_links);
+        //Initialize layout widgets
+        listView = (ListView) findViewById(R.id.listView);
         add_link_edittext = (EditText)findViewById(R.id.add_link_edittext);
         add_name_edittext = (EditText)findViewById(R.id.add_name_edittext);
         add_link_button = (Button) findViewById(R.id.add_link_button);
         clear_link_button = (TextView) findViewById(R.id.clear_link_button);
+        show_links_button = (TextView) findViewById(R.id.show_links_button);
 
+        //Set event listeners
         add_link_button.setOnClickListener(this);
         clear_link_button.setOnClickListener(this);
+        show_links_button.setOnClickListener(this);
 
+        //Initialize list for storing links and link names, and SQLite database manager
         links = new ArrayList<>();
         names = new HashSet<>();
         linkManager = new LinkManager(this);
 
+        //Open connection to database
         try {
             linkManager.open();
         } catch (Exception e) {
             showMessage(getString(R.string.couldnt_open));
         }
 
-        displayLinks();
-    }
+        //Gets all links and adds them to array, then array list
+        //Array list allows for further links to be added to the adapter
+        addLinksToListView();
+        linkArrayList = new ArrayList<>();
+
+        for(int i=0; i<linksForListview.length; i++) {
+            linkArrayList.add(linksForListview[i]);
+        }
+
+        adapter = new ArrayAdapter<String>(this, R.layout.simplerow, linkArrayList);
+        listView.setAdapter(adapter);
+        }
 
     @Override
     protected void onResume() {
         try {
             linkManager.open();
-        } catch (Exception e) {
+        } catch(Exception e) {
             showMessage(getString(R.string.couldnt_open));
         }
         super.onResume();
@@ -76,6 +100,7 @@ public class DisplayLinks extends AppCompatActivity implements View.OnClickListe
 
     @Override
     protected void onPause() {
+        //Close the connection to the database when the user accesses another activity
         linkManager.close();
         super.onPause();
     }
@@ -91,6 +116,7 @@ public class DisplayLinks extends AppCompatActivity implements View.OnClickListe
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
 
+            //Start the corresponding activity when the user selects an icon on the activity bar
             case R.id.main_menu_icon:
                 startActivity(new Intent(this, MainActivity.class));
                 return true;
@@ -112,12 +138,17 @@ public class DisplayLinks extends AppCompatActivity implements View.OnClickListe
     public void onClick(View v) {
         switch (v.getId()) {
 
+            //Event listener, begin process for adding or removing a link
             case R.id.add_link_button:
                 addLink();
                 break;
 
             case R.id.clear_link_button:
                 removeLinkDialog();
+                break;
+
+            case R.id.show_links_button:
+                makeLinksVisible();
                 break;
         }
     }
@@ -129,6 +160,7 @@ public class DisplayLinks extends AppCompatActivity implements View.OnClickListe
      * @return - HTML link format
      */
     private String createStoredLink(String userLink, String name) {
+        //Creates an html reference to allow the layout to render a clickable link for users
         String storedlink = "<a href='" + userLink + "'>" + name + "</a>";
         return storedlink;
     }
@@ -138,27 +170,33 @@ public class DisplayLinks extends AppCompatActivity implements View.OnClickListe
      */
     private void addLink() {
 
+        //Get user input and check that they have added an http reference (won't connect if not)
         String userLink = add_link_edittext.getText().toString();
-
         String http = userLink.substring(0, 7);
+
         if(http.equals("http://")) {
+            //If user has provided link, get name from edittext
             String name = add_name_edittext.getText().toString();
 
+            //If both are blank return message
             if(userLink.equals("") || name.equals("")) {
                 showMessage(getString(R.string.blank_link_message));
-            }
-
-            //Check for already entered name
-
+            } else {
+                //Check the user hasn't entered an already existing name
                 boolean b = names.add(name);
 
                 if(b == false) {
                     showMessage(getString(R.string.link_name_taken));
                 } else {
+                    //Create an html reference, add the link to the database, and call the method
+                    //to display the link
                     storedLink = createStoredLink(userLink, name);
                     linkManager.createLink(storedLink, name);
-                    displayNewLink();
+                    displayNewLink(storedLink);
                 }
+            }
+
+
         } else {
             showMessage(getString(R.string.incorrect_link_format));
         }
@@ -170,32 +208,20 @@ public class DisplayLinks extends AppCompatActivity implements View.OnClickListe
     /**
      * Creates textview of new link and adds it to scrollview
      */
-    private void displayNewLink() {
+    private void displayNewLink(String userLink) {
+       //add link and notify listview adapter of new link
+        linkArrayList.add(userLink);
+        adapter.notifyDataSetChanged();
 
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                TextView t = new TextView(DisplayLinks.this);
-                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams
-                         (LinearLayout.LayoutParams.MATCH_PARENT,
-                                 LinearLayout.LayoutParams.WRAP_CONTENT);
-                params.setMargins(15, 15, 15, 15);
-                t.setLayoutParams(params);
-                t.setText(Html.fromHtml(storedLink));
-                t.setTextAppearance(DisplayLinks.this, R.style.MessageFont);
-                t.setTextColor(Color.parseColor("#FFFFFF"));
-                t.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
-                t.setClickable(true);
-                t.setMovementMethod(LinkMovementMethod.getInstance());
+        //Get the most recent link and make it clickable for users
+        TextView wantedView = (TextView) listView.getChildAt(listView.getCount() - 1);
+        String s = wantedView.getText().toString();
+        wantedView.setText(Html.fromHtml(s));
+        wantedView.setClickable(true);
+        wantedView.setMovementMethod(LinkMovementMethod.getInstance());
+        wantedView.setVisibility(View.VISIBLE);
 
-                try {
-                    scroll_layout_links.addView(t);
-                } catch (Exception e) {
-                    showMessage(getString(R.string.couldnt_display));
-                }
-            }
-        });
-
+        //Make user input boxes blank for ease of reuse.
         add_link_edittext.setText("");
         add_name_edittext.setText("");
     }
@@ -203,42 +229,51 @@ public class DisplayLinks extends AppCompatActivity implements View.OnClickListe
     /**
      * Called as activity is opened, displays all links in database
      */
-    private void displayLinks() {
+    private void addLinksToListView() {
 
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                //Retrieve all links, initialize array for storing links to match the size of links in the database
                 links = linkManager.getAllLinks();
-                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams
-                        (LinearLayout.LayoutParams.MATCH_PARENT,
-                                LinearLayout.LayoutParams.WRAP_CONTENT);
-                params.setMargins(15, 15, 15, 15);
+                linksForListview = new String[links.size()];
 
-                 for (Link l : links) {
-                     //Ensures duplicates can't be added
-                     String name = l.getName();
-                     names.add(name);
-
-                     String link = l.getLink();
-                     TextView t = new TextView(DisplayLinks.this);
-                     t.setLayoutParams(params);
-                     t.setText(Html.fromHtml(link));
-
-                     t.setTextAppearance(DisplayLinks.this, R.style.MessageFont);
-                     t.setTextColor(Color.parseColor("#FFFFFF"));
-                     t.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
-                     t.setClickable(true);
-                     t.setMovementMethod(LinkMovementMethod.getInstance());
-
-                     try {
-                         scroll_layout_links.addView(t);
-                     } catch (Exception e) {
-                         showMessage(getString(R.string.couldnt_display));
-                     }
-
-                 }
+                //Add the link name to the HashSet to ensure it can't be duplicated
+                //Then add the link to the array, which will be passed to the listview adapter (see onCreate)
+                int i = 0;
+                for (Link l : links) {
+                    String name = l.getName();
+                    names.add(name);
+                    String link = l.getLink();
+                    linksForListview[i] = link;
+                    i++;
+                }
             }
         });
+    }
+
+    /**
+     * Loops through all links in the listview and turns them into hyperlinks
+     * Need to add a button user clicks to see them
+     */
+    public void makeLinksVisible() {
+
+        int i = 0;
+        TextView wantedView = (TextView) listView.getChildAt(i);
+
+        while(wantedView != null) {
+            //get text, set textview to html
+            String s = wantedView.getText().toString();
+            wantedView.setText(Html.fromHtml(s));
+            wantedView.setClickable(true);
+            wantedView.setMovementMethod(LinkMovementMethod.getInstance());
+            wantedView.setVisibility(View.VISIBLE);
+
+            i++;
+            wantedView = (TextView) listView.getChildAt(i);
+        }
+
+
     }
 
     /**
@@ -246,6 +281,7 @@ public class DisplayLinks extends AppCompatActivity implements View.OnClickListe
      */
     private void removeLinkDialog() {
 
+        //Builds the alert dialog, sets the message and adds an edittext for user input
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
         dialogBuilder.setTitle(getString(R.string.clear_link_button));
         dialogBuilder.setMessage(getString(R.string.remove_link_confirmation));
@@ -254,12 +290,16 @@ public class DisplayLinks extends AppCompatActivity implements View.OnClickListe
 
         dialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int it) {
+
+                //Takes user input (link name) and stores it for
+                //other method to find in database
                 Editable e = editText.getText();
                 removeLink = e.toString();
 
                 if(removeLink.equals("")) {
                     showMessage(getString(R.string.please_enter_link));
                 } else {
+                    //If user input isn't blank, remove the link
                     removeLink();
                 }
             }
@@ -267,6 +307,7 @@ public class DisplayLinks extends AppCompatActivity implements View.OnClickListe
 
         dialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int it) {
+                //Dialog is removed with no change to app
                 dialog.cancel();
             }
         });
@@ -281,54 +322,48 @@ public class DisplayLinks extends AppCompatActivity implements View.OnClickListe
      */
     private void removeLink() {
 
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                String storedLink = "";
-                Link l = null;
-                boolean foundLink = false;
+        //Creates a link reference to store and remove the desired link, and a boolean
+        //to determine the link has been found
+        String storedLink = "";
+        Link l = null;
+        boolean foundLink = false;
 
-                //Look through links, when correct one is found that matches user input,
-                //delete it and create a 'stored link' i.e. it what it's displayed as
-                //on views
-                List<Link> links = linkManager.getAllLinks();
-                for (Link link : links) {
-                    String name = link.getName();
-                    if (name.equals(removeLink)) {
-                        storedLink = name;
-                        l = link;
-                    }
-                }
-
-                //Find the view with the matching link and remove it
-                //(might not work due to fromHTML method)
-                int childCount = scroll_layout_links.getChildCount();
-
-                if (childCount == 0) {
-                    showMessage(getString(R.string.link_not_found));
-                }
-
-                for (int i = 0; i < childCount; i++) {
-                    View view = scroll_layout_links.getChildAt(i);
-                    TextView textView = (TextView) view;
-                    String viewString = textView.getText().toString().trim();
-
-                    if (viewString.equals(storedLink)) {
-                        foundLink = true;
-                        view.setVisibility(View.GONE);
-                        scroll_layout_links.removeView(view);
-                        linkManager.deleteLink(l);
-                    }
-                }
-
-                if (foundLink == false) {
-                    showMessage(getString(R.string.link_not_found));
-                }
+        //Look through links in database, when correct one is found that matches user input,
+        //store it and create a 'stored link' i.e. it what it's displayed as
+        //on views
+        List<Link> links = linkManager.getAllLinks();
+        for (Link link : links) {
+            String name = link.getName();
+            if (name.equals(removeLink)) {
+                storedLink = name;
+                l = link;
             }
-        });
+        }
+        //Need to find element based on name, remove it from adapter, then delete from database
+        int i = 0;
+        TextView wantedView = (TextView) listView.getChildAt(i);
+
+        while(wantedView != null) {
+
+            String name = wantedView.getText().toString();
+            if(storedLink.equals(name)) {
+                linkArrayList.remove(i);
+                adapter.notifyDataSetChanged();
+            }
+
+            i++;
+            wantedView = (TextView) listView.getChildAt(i);
+        }
+
+        linkManager.deleteLink(l);
+
+        //Used to confirm the link was found
+        if (foundLink == false) {
+            showMessage(getString(R.string.link_not_found));
+        }
 
         //Called so the user can re-add the link without the set thinking
-        //they already have it
+        //that it is still there
         removeLinkFromSet();
     }
 
@@ -344,7 +379,7 @@ public class DisplayLinks extends AppCompatActivity implements View.OnClickListe
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            showMessage("Link name not found");
         }
     }
 

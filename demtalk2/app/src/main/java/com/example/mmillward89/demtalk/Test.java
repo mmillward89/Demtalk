@@ -16,7 +16,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 public class Test extends AppCompatActivity implements View.OnClickListener{
-    private ListView listView1;
     private Button view;
 
     @Override
@@ -27,16 +26,11 @@ public class Test extends AppCompatActivity implements View.OnClickListener{
         view = (Button) findViewById(R.id.view);
         view.setOnClickListener(this);
 
-        listView1 = (ListView) findViewById(R.id.listView1);
-
         String[] items = { "<a href='http://www.facebook.com'>facebook</a>",
                 "<a href='http://www.google.com'>google</a>", "<a href='http://www.reddit.com'>reddit</a>",
                 "<a href='http://www.twitter.com'>twitter</a>" };
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-                R.layout.simplerow, items);
 
-        listView1.setAdapter(adapter);
 
     }
 
@@ -45,30 +39,9 @@ public class Test extends AppCompatActivity implements View.OnClickListener{
     public void onClick(View view) {
         switch(view.getId()) {
             case R.id.view:
-                int i = 0;
-                TextView wantedView = (TextView) listView1.getChildAt(i);
-                String s = wantedView.getText().toString();
-                while(!(s.equals(""))) {
 
-                    if (wantedView != null) {
-                        wantedView.setText(Html.fromHtml(s));
-                        wantedView.setClickable(true);
-                        wantedView.setMovementMethod(LinkMovementMethod.getInstance());
-                        wantedView.setVisibility(View.VISIBLE);
 
-                        i++;
-                        wantedView = (TextView) listView1.getChildAt(i);
-                        if (wantedView == null) {
-                            s = "";
-                        } else {
-                            s = wantedView.getText().toString();
-                        }
 
-                    } else {
-
-                    }
-
-                }
                 break;
         }
 

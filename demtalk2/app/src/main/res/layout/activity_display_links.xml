@@ -74,26 +74,31 @@
             android:paddingTop="10dp"
             android:textColor="@color/White"
             android:textIsSelectable="true"/>
+        <TextView
+            android:id="@+id/show_links_button"
+            android:text="Show Links"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:paddingTop="10dp"
+            android:textColor="@color/White"
+            android:textIsSelectable="true"/>
+
 
     </LinearLayout>
 
-
-    <ScrollView
-        android:id="@+id/display_links_scrollbox"
+    <LinearLayout
+        android:orientation="vertical"
         android:layout_width="fill_parent"
         android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_weight="1"
+        android:layout_marginTop="5dp">
 
-        <LinearLayout
-            android:id="@+id/scroll_layout_links"
-            android:orientation="vertical"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content">
-
-
-        </LinearLayout>
-
-        </ScrollView>
-
+        <ListView
+            android:id="@+id/listView"
+            android:layout_height="wrap_content"
+            android:layout_width="fill_parent" />
 
     </LinearLayout>
+
+</LinearLayout>
