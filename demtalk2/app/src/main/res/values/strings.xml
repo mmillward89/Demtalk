@@ -80,7 +80,7 @@
     <string name="clear_link_button">Remove a Link</string>
     <string name="remove_link_confirmation">Enter link name to remove</string>
     <string name="please_enter_link">No name found, please enter a link name</string>
-    <string name="blank_link_message">Please add a valid address and name</string>
+    <string name="no_link_added_message">Please add a valid address and name</string>
     <string name="link_name_taken">This name has already been used,
         please enter a unique name</string>
     <string name="link_not_found">Link not found</string>

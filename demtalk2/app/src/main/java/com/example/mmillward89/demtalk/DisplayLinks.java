@@ -38,11 +38,12 @@ public class DisplayLinks extends AppCompatActivity implements View.OnClickListe
     private LinkManager linkManager;
     private List<Link> links;
     private HashSet<String> names;
-    private String storedLink, removeLink;
+    private String storedLink;
     private ListView listView;
     private String[] linksForListview;
     private ArrayAdapter<String> adapter;
     private ArrayList<String> linkArrayList;
+    private boolean newlink;
 
 
     @Override
@@ -64,9 +65,11 @@ public class DisplayLinks extends AppCompatActivity implements View.OnClickListe
         show_links_button.setOnClickListener(this);
 
         //Initialize list for storing links and link names, and SQLite database manager
+        //And boolean for determing link to display
         links = new ArrayList<>();
         names = new HashSet<>();
         linkManager = new LinkManager(this);
+        newlink = false;
 
         //Open connection to database
         try {
@@ -148,7 +151,11 @@ public class DisplayLinks extends AppCompatActivity implements View.OnClickListe
                 break;
 
             case R.id.show_links_button:
-                makeLinksVisible();
+                if(newlink) {
+                    displayNewLink();
+                } else {
+                    makeLinksVisible();
+                }
                 break;
         }
     }
@@ -172,47 +179,53 @@ public class DisplayLinks extends AppCompatActivity implements View.OnClickListe
 
         //Get user input and check that they have added an http reference (won't connect if not)
         String userLink = add_link_edittext.getText().toString();
-        String http = userLink.substring(0, 7);
 
-        if(http.equals("http://")) {
-            //If user has provided link, get name from edittext
-            String name = add_name_edittext.getText().toString();
+        //Checks that user link submitted isn't too short to be a properly formatted link
+        if(userLink.length() < 7) {
+            showMessage(getString(R.string.no_link_added_message));
+        } else {
+            String http = userLink.substring(0, 7);
 
-            //If both are blank return message
-            if(userLink.equals("") || name.equals("")) {
-                showMessage(getString(R.string.blank_link_message));
+            if(!(http.equals("http://"))) {
+                showMessage(getString(R.string.incorrect_link_format));
             } else {
-                //Check the user hasn't entered an already existing name
-                boolean b = names.add(name);
+                //If user has provided link, get name from edittext
+                String name = add_name_edittext.getText().toString();
 
-                if(b == false) {
-                    showMessage(getString(R.string.link_name_taken));
+                //If both are blank return message
+                if(name.equals("")) {
+                    showMessage(getString(R.string.no_link_added_message));
                 } else {
-                    //Create an html reference, add the link to the database, and call the method
-                    //to display the link
-                    storedLink = createStoredLink(userLink, name);
-                    linkManager.createLink(storedLink, name);
-                    displayNewLink(storedLink);
+                    //Check the user hasn't entered an already existing name
+                    boolean b = names.add(name);
+
+                    if(b == false) {
+                        showMessage(getString(R.string.link_name_taken));
+                    } else {
+                        //Create an html reference, add the link to the database, and call the method
+                        //to display the link
+                        storedLink = createStoredLink(userLink, name);
+                        linkManager.createLink(storedLink, name);
+
+                        //add link and notify listview adapter of new link
+                        linkArrayList.add(storedLink);
+                        adapter.notifyDataSetChanged();
+
+                        //add displaynewlink back if necessary
+                    }
+
+                    //Make user input boxes blank for ease of reuse.
+                    add_link_edittext.setText("");
+                    add_name_edittext.setText("");
                 }
             }
-
-
-        } else {
-            showMessage(getString(R.string.incorrect_link_format));
         }
-
-
-
     }
 
     /**
      * Creates textview of new link and adds it to scrollview
      */
-    private void displayNewLink(String userLink) {
-       //add link and notify listview adapter of new link
-        linkArrayList.add(userLink);
-        adapter.notifyDataSetChanged();
-
+    private void displayNewLink() {
         //Get the most recent link and make it clickable for users
         TextView wantedView = (TextView) listView.getChildAt(listView.getCount() - 1);
         String s = wantedView.getText().toString();
@@ -221,9 +234,6 @@ public class DisplayLinks extends AppCompatActivity implements View.OnClickListe
         wantedView.setMovementMethod(LinkMovementMethod.getInstance());
         wantedView.setVisibility(View.VISIBLE);
 
-        //Make user input boxes blank for ease of reuse.
-        add_link_edittext.setText("");
-        add_name_edittext.setText("");
     }
 
     /**
@@ -257,22 +267,28 @@ public class DisplayLinks extends AppCompatActivity implements View.OnClickListe
      * Need to add a button user clicks to see them
      */
     public void makeLinksVisible() {
+    try {
+        if (newlink == false) {
+            int i = 0;
+            TextView wantedView = (TextView) listView.getChildAt(i);
 
-        int i = 0;
-        TextView wantedView = (TextView) listView.getChildAt(i);
+            while (wantedView != null) {
+                //get text, set textview to html
+                String s = wantedView.getText().toString();
+                wantedView.setText(Html.fromHtml(s));
+                wantedView.setClickable(true);
+                wantedView.setMovementMethod(LinkMovementMethod.getInstance());
+                wantedView.setVisibility(View.VISIBLE);
 
-        while(wantedView != null) {
-            //get text, set textview to html
-            String s = wantedView.getText().toString();
-            wantedView.setText(Html.fromHtml(s));
-            wantedView.setClickable(true);
-            wantedView.setMovementMethod(LinkMovementMethod.getInstance());
-            wantedView.setVisibility(View.VISIBLE);
+                i++;
+                wantedView = (TextView) listView.getChildAt(i);
+            }
 
-            i++;
-            wantedView = (TextView) listView.getChildAt(i);
+            newlink = true;
         }
-
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
 
     }
 
@@ -294,13 +310,13 @@ public class DisplayLinks extends AppCompatActivity implements View.OnClickListe
                 //Takes user input (link name) and stores it for
                 //other method to find in database
                 Editable e = editText.getText();
-                removeLink = e.toString();
+                String removeLink = e.toString();
 
                 if(removeLink.equals("")) {
                     showMessage(getString(R.string.please_enter_link));
                 } else {
                     //If user input isn't blank, remove the link
-                    removeLink();
+                    removeLink(removeLink);
                 }
             }
         });
@@ -320,67 +336,71 @@ public class DisplayLinks extends AppCompatActivity implements View.OnClickListe
      * Finds link that matches user input, matches it to appropriate textview, and removes
      * it from scrollview
      */
-    private void removeLink() {
+    private void removeLink(String removeLink) {
 
         //Creates a link reference to store and remove the desired link, and a boolean
         //to determine the link has been found
         String storedLink = "";
         Link l = null;
-        boolean foundLink = false;
+
+
+        List<Link> links = linkManager.getAllLinks();
 
         //Look through links in database, when correct one is found that matches user input,
-        //store it and create a 'stored link' i.e. it what it's displayed as
-        //on views
-        List<Link> links = linkManager.getAllLinks();
-        for (Link link : links) {
-            String name = link.getName();
-            if (name.equals(removeLink)) {
-                storedLink = name;
-                l = link;
+        //store the html link to compare to views displayed
+        for(int i=0; i< links.size(); i++) {
+            l = links.get(i);
+            storedLink = l.getName();
+
+            if (storedLink.equals(removeLink)) {
+                i = links.size() - 1;
             }
         }
-        //Need to find element based on name, remove it from adapter, then delete from database
-        int i = 0;
-        TextView wantedView = (TextView) listView.getChildAt(i);
 
-        while(wantedView != null) {
+        //Start removal process if a link has been found
+        if(!(storedLink.equals(""))) {
 
-            String name = wantedView.getText().toString();
-            if(storedLink.equals(name)) {
-                linkArrayList.remove(i);
-                adapter.notifyDataSetChanged();
+            int i = 0;
+            TextView wantedView = (TextView) listView.getChildAt(i);
+
+            while(wantedView != null) {
+                //Get html formatted link displayed in each view
+                String name = wantedView.getText().toString();
+
+                //If it matches the user link to delete, remove it from the listview and database
+                // and end the loop, else keep looking
+                if(storedLink.equals(name)) {
+                    linkArrayList.remove(i);
+                    adapter.notifyDataSetChanged();
+                    linkManager.deleteLink(l);
+                    wantedView = null;
+
+                    //Remove link from set used for avoiding duplicates
+                    removeLinkFromSet(removeLink);
+                } else {
+                    i++;
+                    wantedView = (TextView) listView.getChildAt(i);
+                }
             }
 
-            i++;
-            wantedView = (TextView) listView.getChildAt(i);
-        }
-
-        linkManager.deleteLink(l);
-
-        //Used to confirm the link was found
-        if (foundLink == false) {
+        } else {
             showMessage(getString(R.string.link_not_found));
         }
-
-        //Called so the user can re-add the link without the set thinking
-        //that it is still there
-        removeLinkFromSet();
     }
 
 
     /**
      * Removes name from set so that user can re-add if they want
      */
-    private void removeLinkFromSet() {
-        try {
-            for (String name : names) {
-                if (name.equals(removeLink)) {
-                    names.remove(name);
-                }
+    private void removeLinkFromSet(String removeLink) {
+        Iterator<String> iterator = names.iterator();
+        while(iterator.hasNext()) {
+            String name = iterator.next();
+            if (name.equals(removeLink)) {
+                iterator.remove();
             }
-        } catch (Exception e) {
-            showMessage("Link name not found");
         }
+
     }
 
     private void showMessage(String s) {

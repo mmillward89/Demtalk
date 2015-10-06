@@ -5,9 +5,8 @@
     android:layout_height="wrap_content"
     android:padding="5dp"
     android:textSize="15sp"
-    android:linksClickable="true"
-    android:clickable="true"
-    android:visibility="invisible"
+    android:visibility="visible"
+    android:autoLink=""
     android:gravity="center">
 
 </TextView>
