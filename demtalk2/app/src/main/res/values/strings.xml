@@ -12,7 +12,7 @@
     <string name="login_clear">Clear Text</string>
     <string name="blank_textboxes">Please add a username and password.</string>
     <string name="service_name">mark-pc</string>
-    <string name="host_name">192.168.1.108</string>
+    <string name="host_name">192.168.1.122</string>
     <string name="couldnt_login_message">Could not login, please ensure details are correct</string>
     <string name="user_details_not_provided">User details not provided</string>
 
@@ -85,7 +85,9 @@
         please enter a unique name</string>
     <string name="link_not_found">Link not found</string>
     <string name="couldnt_open">Could not access stored links</string>
+    <string name="couldnt_display_links">Could not display stored links</string>
     <string name="incorrect_link_format">Incorrect link format, link could not be created</string>
+    <string name="clickable_link"><a href="http://google.com/">This is a link to google.com</a></string>
 
     <color name="Azure">#336699</color>
     <color name="White">#FFFFFF</color>

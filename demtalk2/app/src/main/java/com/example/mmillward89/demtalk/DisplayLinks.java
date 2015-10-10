@@ -1,6 +1,7 @@
 package com.example.mmillward89.demtalk;
 
 import android.app.AlertDialog;
+import android.app.ListActivity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
@@ -30,7 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class DisplayLinks extends AppCompatActivity implements View.OnClickListener {
+public class DisplayLinks extends ListActivity implements View.OnClickListener {
 
     private Button add_link_button;
     private TextView clear_link_button, show_links_button;
@@ -88,7 +89,8 @@ public class DisplayLinks extends AppCompatActivity implements View.OnClickListe
         }
 
         adapter = new ArrayAdapter<String>(this, R.layout.simplerow, linkArrayList);
-        listView.setAdapter(adapter);
+        setListAdapter(adapter);
+        makeViewsHTML();
         }
 
     @Override
@@ -151,11 +153,7 @@ public class DisplayLinks extends AppCompatActivity implements View.OnClickListe
                 break;
 
             case R.id.show_links_button:
-                if(newlink) {
-                    displayNewLink();
-                } else {
-                    makeLinksVisible();
-                }
+
                 break;
         }
     }
@@ -223,73 +221,43 @@ public class DisplayLinks extends AppCompatActivity implements View.OnClickListe
     }
 
     /**
-     * Creates textview of new link and adds it to scrollview
-     */
-    private void displayNewLink() {
-        //Get the most recent link and make it clickable for users
-        TextView wantedView = (TextView) listView.getChildAt(listView.getCount() - 1);
-        String s = wantedView.getText().toString();
-        wantedView.setText(Html.fromHtml(s));
-        wantedView.setClickable(true);
-        wantedView.setMovementMethod(LinkMovementMethod.getInstance());
-        wantedView.setVisibility(View.VISIBLE);
-
-    }
-
-    /**
      * Called as activity is opened, displays all links in database
      */
     private void addLinksToListView() {
 
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                //Retrieve all links, initialize array for storing links to match the size of links in the database
-                links = linkManager.getAllLinks();
-                linksForListview = new String[links.size()];
+        //Retrieve all links, initialize array for storing links to match the size of links in the database
+        links = linkManager.getAllLinks();
+        linksForListview = new String[links.size()];
 
-                //Add the link name to the HashSet to ensure it can't be duplicated
-                //Then add the link to the array, which will be passed to the listview adapter (see onCreate)
-                int i = 0;
-                for (Link l : links) {
-                    String name = l.getName();
-                    names.add(name);
-                    String link = l.getLink();
-                    linksForListview[i] = link;
-                    i++;
-                }
-            }
-        });
+        //Add the link name to the HashSet to ensure it can't be duplicated
+        //Then add the link to the array, which will be passed to the listview adapter (see onCreate)
+        int i = 0;
+        for (Link l : links) {
+            String name = l.getName();
+            names.add(name);
+            String link = l.getLink();
+            linksForListview[i] = link;
+            i++;
+        }
     }
 
     /**
      * Loops through all links in the listview and turns them into hyperlinks
      * Need to add a button user clicks to see them
      */
-    public void makeLinksVisible() {
-    try {
-        if (newlink == false) {
-            int i = 0;
-            TextView wantedView = (TextView) listView.getChildAt(i);
+    public void makeViewsHTML() {
 
-            while (wantedView != null) {
-                //get text, set textview to html
+        try {
+            for(int i=0; i<links.size(); i++) {
+                TextView wantedView = (TextView) adapter.getView(i, null, null);
                 String s = wantedView.getText().toString();
                 wantedView.setText(Html.fromHtml(s));
                 wantedView.setClickable(true);
                 wantedView.setMovementMethod(LinkMovementMethod.getInstance());
-                wantedView.setVisibility(View.VISIBLE);
-
-                i++;
-                wantedView = (TextView) listView.getChildAt(i);
             }
-
-            newlink = true;
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-    } catch (Exception e) {
-        e.printStackTrace();
-    }
-
     }
 
     /**
