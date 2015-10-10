@@ -87,7 +87,7 @@
     <string name="couldnt_open">Could not access stored links</string>
     <string name="couldnt_display_links">Could not display stored links</string>
     <string name="incorrect_link_format">Incorrect link format, link could not be created</string>
-    <string name="clickable_link"><a href="http://google.com/">This is a link to google.com</a></string>
+    <string name="error_removing_link">Error Removing Link</string>
 
     <color name="Azure">#336699</color>
     <color name="White">#FFFFFF</color>
