@@ -9,4 +9,3 @@ The core chat and link saving functionality has been implemented. I am currently
 - A permanent remote server space
 - Improved UI with Fragments
 - Improved performance
-- Polished and more intuitive link function
