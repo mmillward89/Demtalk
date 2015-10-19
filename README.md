@@ -4,7 +4,7 @@ This project was created for my dissertation/summer project on my MSc Computer S
 
 It was designed with the idea of creating a safe space for young caregivers of family members with dementia. The app would allow them to easily converse and share information with their peers in their limited spare time.
 
-The core chat and link saving functionality has been implemented. I am currently working on improving the app to the point where it could be added to the Play Store. Features to add and objectives include:
+The core chat and link saving functionality has been implemented. I am currently working on improving the app in order to polish it and ensure all features work smoothlu. Features to add and objectives include:
 
 - A permanent remote server space
 - Improved UI with Fragments
